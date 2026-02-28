@@ -1,0 +1,51 @@
+[project]
+name = "sales-portal-robot-tests"
+version = "1.0.0"
+requires-python = ">=3.10"
+dependencies = [
+    "robotframework>=7.0",
+    "robotframework-browser>=18.0",
+    "robotframework-requests>=0.9",
+    "robotframework-datadriver>=1.11",
+    "robotframework-jsonlibrary>=0.5",
+    "allure-robotframework>=2.13",
+    "requests>=2.32",
+    "faker>=33.0",
+    "pydantic>=2.10",
+    "python-dotenv>=1.1",
+    "jsonschema>=4.23",
+    "pymongo>=4.10",
+    "python-telegram-bot>=21.0",
+    "robotframework-pabot>=2.18",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.8",
+    "mypy>=1.14",
+    "pre-commit>=4.0",
+    "robotframework-robocop>=5.0",
+    "robotframework-tidy>=4.15",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["libraries*", "variables*", "data*"]
+
+[tool.mypy]
+strict = true
+python_version = "3.10"
+plugins = ["pydantic.mypy"]
+ignore_missing_imports = true
+exclude = [".venv"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF"]

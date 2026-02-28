@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+.mypy_cache/
+.pytest_cache/
+results/
+allure-results/
+allure-report/
+src/.auth/
+.env
+.env.dev
+dist/
+*.egg-info/
+node_modules/

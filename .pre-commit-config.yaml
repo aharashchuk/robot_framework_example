@@ -1,0 +1,28 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.0
+    hooks:
+      - id: ruff
+        args: [--fix]
+        files: "^(libraries|variables|data)/"
+      - id: ruff-format
+        files: "^(libraries|variables|data)/"
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.14.0
+    hooks:
+      - id: mypy
+        files: "^(libraries|variables|data)/"
+        additional_dependencies: [pydantic>=2.10, robotframework>=7.0]
+
+  - repo: https://github.com/MarketSquare/robotframework-robocop
+    rev: 5.0.0
+    hooks:
+      - id: robocop
+        files: '\.(robot|resource)$'
+
+  - repo: https://github.com/MarketSquare/robotidy
+    rev: 4.15.0
+    hooks:
+      - id: robotidy
+        files: '\.(robot|resource)$'
