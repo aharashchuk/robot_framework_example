@@ -7,5 +7,3 @@ variablefiles = [
 ]
 outputdir = "results"
 loglevel  = "INFO"
-# Global listener for Allure reporting (enable in CI or via CLI flag)
-# listener     = "allure_robotframework"

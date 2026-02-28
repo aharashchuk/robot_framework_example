@@ -89,16 +89,15 @@ The Sales Portal is a full-stack web application located in the `sales-portal/` 
 
 ### 3.2 Python Support Libraries (used inside keyword libraries)
 
-| Library                   | Version | Purpose                                                 | pytest Equivalent              |
-| ------------------------- | ------- | ------------------------------------------------------- | ------------------------------ |
-| **requests**              | ^2.32   | HTTP client used inside `RequestsLibrary` + custom libs | Playwright `APIRequestContext` |
-| **pydantic**              | ^2.10   | Typed response model parsing in keyword libraries       | Same                           |
-| **faker**                 | ^33.0   | Randomised test data generation in Python keyword libs  | Same                           |
-| **python-dotenv**         | ^1.1    | `.env` loading in variable files and keyword libraries  | Same                           |
-| **jsonschema**            | ^4.23   | JSON Schema validation in custom keyword libraries      | Same                           |
-| **pymongo**               | ^4.10   | `bson.ObjectId` for mock data construction              | Same                           |
-| **python-telegram-bot**   | ^21.x   | CI Telegram notifications                               | Same                           |
-| **allure-robotframework** | ^2.13   | Allure reporting integration for Robot Framework        | `allure-pytest`                |
+| Library                 | Version | Purpose                                                 | pytest Equivalent              |
+| ----------------------- | ------- | ------------------------------------------------------- | ------------------------------ |
+| **requests**            | ^2.32   | HTTP client used inside `RequestsLibrary` + custom libs | Playwright `APIRequestContext` |
+| **pydantic**            | ^2.10   | Typed response model parsing in keyword libraries       | Same                           |
+| **faker**               | ^33.0   | Randomised test data generation in Python keyword libs  | Same                           |
+| **python-dotenv**       | ^1.1    | `.env` loading in variable files and keyword libraries  | Same                           |
+| **jsonschema**          | ^4.23   | JSON Schema validation in custom keyword libraries      | Same                           |
+| **pymongo**             | ^4.10   | `bson.ObjectId` for mock data construction              | Same                           |
+| **python-telegram-bot** | ^21.x   | CI Telegram notifications                               | Same                           |
 
 ### 3.3 Linting, Formatting & Type Checking
 
@@ -112,11 +111,9 @@ The Sales Portal is a full-stack web application located in the `sales-portal/` 
 
 ### 3.4 Reporting
 
-| Tool                          | Purpose                                                      | pytest Equivalent |
-| ----------------------------- | ------------------------------------------------------------ | ----------------- |
-| **Robot Framework built-in**  | `log.html` + `report.html` + `output.xml` (native RF output) | pytest-html       |
-| **allure-robotframework**     | Rich Allure report with step trees, attachments, env info    | `allure-pytest`   |
-| **allure-commandline** (Java) | Allure CLI for report generation                             | Same              |
+| Tool                         | Purpose                                                      | pytest Equivalent |
+| ---------------------------- | ------------------------------------------------------------ | ----------------- |
+| **Robot Framework built-in** | `log.html` + `report.html` + `output.xml` (native RF output) | pytest-html       |
 
 ---
 
@@ -165,7 +162,7 @@ The framework follows the same **multi-layer service-oriented architecture** as 
 | **Data-Driven Testing**      | `@pytest.mark.parametrize`           | `Test Template` + `DataDriver` library (CSV/JSON) or inline tables |
 | **Schema Validation**        | `jsonschema` + `validate_response()` | `JSONLibrary` + Python keyword library `ValidateResponse`          |
 | **Type Safety**              | `mypy` strict on `.py` files         | `mypy` on keyword library `.py` files; `robocop` on `.robot` files |
-| **Step Reporting**           | `@allure.step()`                     | `allure-robotframework` listener + keyword names as step titles    |
+| **Step Reporting**           | `@allure.step()`                     | Keyword names as steps + `robot.api.logger` in keyword libs        |
 | **Cleanup / Teardown**       | `yield` fixture + `EntitiesStore`    | `Test Teardown` keyword + `EntityStore` Python library             |
 
 ---
@@ -188,12 +185,12 @@ Variable files are loaded globally via `robot.toml` or per-suite via `Variables`
 
 Python keyword libraries that wrap HTTP communication, analogous to `api_clients/` in the pytest project.
 
-| Module                        | Role                                                                                                               | pytest Equivalent     |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------ | --------------------- |
-| `libraries/api/api_client.py` | `ApiClientLibrary` — wraps `requests.Session`; provides `Send Request`, attaches req/resp to Allure; masks secrets | `PlaywrightApiClient` |
-| `libraries/api/response.py`   | `ApiResponse` dataclass — normalises response body, status, headers                                                | `Response` model      |
+| Module                        | Role                                                                                                                | pytest Equivalent     |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------- | --------------------- |
+| `libraries/api/api_client.py` | `ApiClientLibrary` — wraps `requests.Session`; logs req/resp to RF native log via `robot.api.logger`; masks secrets | `PlaywrightApiClient` |
+| `libraries/api/response.py`   | `ApiResponse` dataclass — normalises response body, status, headers                                                 | `Response` model      |
 
-**Note:** `RequestsLibrary` (from `robotframework-requests`) handles most HTTP primitives as RF keywords; `ApiClientLibrary` wraps it to add Allure attachment and secret masking on top.
+**Note:** `RequestsLibrary` (from `robotframework-requests`) handles most HTTP primitives as RF keywords; `ApiClientLibrary` wraps it to add request/response logging via `robot.api.logger` and secret masking on top.
 
 ### 5.3 API Endpoint Keyword Libraries (`libraries/api/endpoints/`)
 
@@ -207,7 +204,7 @@ One Python class (RF keyword library) per domain, each providing `@keyword`-deco
 | `orders_api_library.py`        | `Create Order`, `Get Order By Id`, `Update Order`, `Delete Order`, `Add Order Delivery`, `Update Order Status`, `Receive Order Products`, `Add Order Comment`, `Delete Order Comment`, `Assign Manager`, `Unassign Manager` | `OrdersApi`        |
 | `notifications_api_library.py` | `Get Notifications`, `Mark Notification Read`, `Mark All Notifications Read`                                                                                                                                                | `NotificationsApi` |
 
-Every `@keyword` uses `allure.step()` for automatic Allure step reporting.
+Every `@keyword` uses `robot.api.logger` for automatic step logging in `log.html`.
 
 ### 5.4 API Service Resources (`resources/api/service/`)
 
@@ -392,9 +389,6 @@ robot --include smoke tests/
 # Regression
 robot --include regression tests/
 
-# With Allure
-robot --listener allure_robotframework tests/
-
 # Parallel (robotframework-pabot)
 pabot --processes 4 --include regression tests/
 ```
@@ -482,9 +476,9 @@ Create Order With Products
 
 The `Full Delete Entities` keyword (from `orders_service.resource`) deletes tracked orders → products → customers in teardown, using `EntityStoreLibrary`.
 
-### 6.6 Allure Reporting Integration
+### 6.6 Native RF Reporting
 
-The `allure-robotframework` listener auto-captures every keyword call as an Allure step. Additional metadata is added via:
+Robot Framework automatically captures every keyword call as a nested step in `log.html`. Additional metadata is added via:
 
 ```robot
 *** Settings ***
@@ -500,6 +494,8 @@ Create Product — Valid Data
     [Tags]    smoke    regression    products    api
     [Documentation]    POST /api/products with all valid fields returns 201.
 ```
+
+Request/response details are written to the log via `robot.api.logger` in `ApiClientLibrary` — visible in `log.html` under each keyword call.
 
 ---
 
@@ -567,7 +563,6 @@ dependencies = [
     "robotframework-requests>=0.9",
     "robotframework-datadriver>=1.11",
     "robotframework-jsonlibrary>=0.5",
-    "allure-robotframework>=2.13",
     "faker>=33.0",
     "pydantic>=2.10",
     "python-dotenv>=1.1",
@@ -668,14 +663,13 @@ repos:
 - Uses Docker image with Python + Playwright pre-installed.
 - Steps:
   1. Checkout
-  2. Install OpenJDK 17 (for Allure CLI)
-  3. `pip install -e .`
-  4. `rfbrowser init` (downloads Playwright browsers for Browser Library)
-  5. Run API regression: `robot --include api --include regression --listener allure_robotframework tests/api/`
-  6. Run UI regression: `robot --include ui --include regression --listener allure_robotframework tests/ui/`
-  7. Generate Allure report: `allure generate allure-results -o allure-report --clean`
-  8. Deploy to **GitHub Pages**
-  9. Send **Telegram notification**
+  2. `pip install -e .`
+  3. `rfbrowser init` (downloads Playwright browsers for Browser Library)
+  4. Run API regression: `robot --include api --include regression --outputdir results/api tests/api/`
+  5. Run UI regression: `robot --include ui --include regression --outputdir results/ui tests/ui/`
+  6. Merge results: `rebot --outputdir results results/api/output.xml results/ui/output.xml`
+  7. Upload `results/` as a GitHub Actions artifact
+  8. Send **Telegram notification**
 
 ### 9.3 Parallel Execution
 
@@ -691,29 +685,39 @@ pabot --processes 4 --include regression tests/
 
 ### 10.1 Robot Framework Native Reports
 
-| Report        | File                  | Description                                       |
-| ------------- | --------------------- | ------------------------------------------------- |
-| `log.html`    | `results/log.html`    | Full keyword-level execution log with timing      |
-| `report.html` | `results/report.html` | High-level test summary with pass/fail statistics |
-| `output.xml`  | `results/output.xml`  | Machine-readable RF output (used by Allure, CI)   |
+| Report        | File                  | Description                                                        |
+| ------------- | --------------------- | ------------------------------------------------------------------ |
+| `log.html`    | `results/log.html`    | Full keyword-level execution log with timing and nested step tree  |
+| `report.html` | `results/report.html` | High-level test summary with pass/fail statistics                  |
+| `output.xml`  | `results/output.xml`  | Machine-readable RF output (used by `rebot` merging, CI archiving) |
 
-### 10.2 Allure Integration
+### 10.2 Request/Response Logging
 
-- `allure-robotframework` listener attached at runtime via `--listener allure_robotframework`.
-- Every keyword call becomes an Allure step with timing.
-- Test metadata (`[Tags]`, `[Documentation]`, `Metadata`) maps to Allure labels.
-- API request/response JSON attached to steps via `allure.attach()` inside Python keyword libraries.
-- Screenshots auto-attached on test failure via `Test Teardown    Capture Page Screenshot`.
+API request and response bodies are logged to `log.html` via `robot.api.logger` inside `ApiClientLibrary`:
+
+- `logger.info(...)` — always visible in `log.html`
+- `logger.debug(...)` — visible when running with `--loglevel DEBUG`
+- Secrets are masked before logging using `_mask_secrets()` regex
 
 ### 10.3 Screenshots & Video
 
-| Artifact   | When captured                                     | Mechanism                             |
-| ---------- | ------------------------------------------------- | ------------------------------------- |
-| Screenshot | On test failure                                   | `Capture Page Screenshot` in teardown |
-| Video      | Configurable via `New Context    recordVideo=...` | Browser Library context option        |
-| Trace      | Configurable per context                          | `New Context    tracing=True`         |
+| Artifact   | When captured                                     | Mechanism                                    |
+| ---------- | ------------------------------------------------- | -------------------------------------------- |
+| Screenshot | On test failure                                   | `Capture Page Screenshot` in `Test Teardown` |
+| Video      | Configurable via `New Context    recordVideo=...` | Browser Library context option               |
+| Trace      | Configurable per context                          | `New Context    tracing=True`                |
 
-### 10.4 Telegram Notifications
+Screenshots are saved to `results/` and automatically embedded in `log.html`.
+
+### 10.4 Merging Multiple Output Files
+
+When API and UI tests run separately (e.g., in CI), use `rebot` to merge into one report:
+
+```bash
+rebot --outputdir results --output output.xml results/api/output.xml results/ui/output.xml
+```
+
+### 10.5 Telegram Notifications
 
 Same `TelegramService` Python class as the pytest project — invoked from `scripts/notify_telegram.py` after the CI test run.
 
@@ -726,7 +730,7 @@ sales-portal-robot-tests/
 ├── .github/
 │   └── workflows/
 │       ├── build.yml              # PR lint + type check
-│       └── tests.yml              # Full test run + Allure deploy
+│       └── tests.yml              # Full test run + report upload
 ├── .husky/ (or .pre-commit-config.yaml)
 ├── pyproject.toml                 # Python deps + mypy + ruff config
 ├── robot.toml                     # RF defaults (variablefiles, outputdir, loglevel)
@@ -740,7 +744,7 @@ sales-portal-robot-tests/
 ├── libraries/                     # Python keyword libraries
 │   ├── api/
 │   │   ├── __init__.py
-│   │   ├── api_client.py          # ApiClientLibrary — requests wrapper + Allure attach
+│   │   ├── api_client.py          # ApiClientLibrary — requests wrapper + RF logger
 │   │   ├── response.py            # ApiResponse dataclass
 │   │   └── endpoints/
 │   │       ├── login_api_library.py
@@ -851,8 +855,6 @@ sales-portal-robot-tests/
 │   └── user.json                  # Generated browser storage state
 │
 ├── results/                       # RF output: log.html, report.html, output.xml
-├── allure-results/                # Allure raw data
-├── allure-report/                 # Generated Allure HTML report
 ├── scripts/
 │   └── notify_telegram.py         # CI Telegram notification script
 └── .env / .env.dev / .env.dist
@@ -876,8 +878,8 @@ sales-portal-robot-tests/
 | **Schema validation**    | AJV                                         | `jsonschema`                              | `jsonschema` via Python keyword library                     |
 | **Type models**          | TypeScript interfaces                       | Pydantic `BaseModel`                      | Pydantic `BaseModel` (in keyword libs)                      |
 | **Cleanup / teardown**   | `cleanup` fixture                           | `yield` fixture + `EntitiesStore`         | `Test Teardown` + `EntityStoreLibrary`                      |
-| **Reporting**            | Allure (`allure-playwright`)                | Allure (`allure-pytest`)                  | `log.html` + Allure (`allure-robotframework`)               |
-| **Step reporting**       | `@logStep()` → `test.step()`                | `@allure.step()`                          | Keyword names as steps + `allure.step()`                    |
+| **Reporting**            | Allure (`allure-playwright`)                | Allure (`allure-pytest`)                  | `log.html` + `report.html` (native RF output)               |
+| **Step reporting**       | `@logStep()` → `test.step()`                | `@allure.step()`                          | Keyword names as steps + `robot.api.logger` in keyword libs |
 | **Mock / interception**  | `page.route()`                              | `page.route()` via `Mock` class           | `Mock Request` / `Mock Response` keywords                   |
 | **Auth / storage state** | `auth.setup.ts`                             | `storage_state_path` session fixture      | `auth_setup.robot` + `Save/Load Storage State`              |
 | **Linting (code)**       | ESLint + Prettier                           | ruff + mypy                               | ruff + mypy (for `.py`) + robocop + robotidy (for `.robot`) |

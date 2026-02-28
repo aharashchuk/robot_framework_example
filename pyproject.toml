@@ -8,7 +8,6 @@ dependencies = [
     "robotframework-requests>=0.9",
     "robotframework-datadriver>=1.11",
     "robotframework-jsonlibrary>=0.5",
-    "allure-robotframework>=2.13",
     "requests>=2.32",
     "faker>=33.0",
     "pydantic>=2.10",

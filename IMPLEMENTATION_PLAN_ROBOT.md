@@ -20,7 +20,7 @@ Use `robotframework-browser` (wraps Playwright) for UI tests. This aligns with t
 
 ### Decision 2 — `RequestsLibrary` for API tests, not Browser Library HTTP
 
-Use `robotframework-requests` (`RequestsLibrary`) for API tests. It provides clean RF keywords (`GET`, `POST`, `PUT`, `DELETE`, `PATCH`) that map directly to the HTTP verbs without needing a browser context. A thin Python wrapper library (`ApiClientLibrary`) adds Allure attachment and secret masking on top.
+Use `robotframework-requests` (`RequestsLibrary`) for API tests. It provides clean RF keywords (`GET`, `POST`, `PUT`, `DELETE`, `PATCH`) that map directly to the HTTP verbs without needing a browser context. A thin Python wrapper library (`ApiClientLibrary`) adds request/response logging to the RF native log and secret masking on top.
 
 ### Decision 3 — Hybrid DDT approach
 
@@ -112,7 +112,6 @@ dependencies = [
     "robotframework-requests>=0.9",
     "robotframework-datadriver>=1.11",
     "robotframework-jsonlibrary>=0.5",
-    "allure-robotframework>=2.13",
     "requests>=2.32",
     "faker>=33.0",
     "pydantic>=2.10",
@@ -175,8 +174,6 @@ rfbrowser init chromium
 variablefiles = ["variables/env.py"]
 outputdir    = "results"
 loglevel     = "INFO"
-# Global listener for Allure reporting (enable in CI or via CLI flag)
-# listener     = "allure_robotframework"
 ```
 
 ### Step 1.5 — Create initial directory structure
@@ -282,8 +279,7 @@ tests/
     └── integration/
 
 src/.auth/   (gitignored — generated storage state)
-results/     (gitignored — RF output)
-allure-results/ (gitignored)
+results/     (gitignored — RF output: log.html, report.html, output.xml)
 scripts/
 └── notify_telegram.py
 ```
@@ -334,8 +330,6 @@ __pycache__/
 .mypy_cache/
 .pytest_cache/
 results/
-allure-results/
-allure-report/
 src/.auth/
 .env
 .env.dev
@@ -674,7 +668,7 @@ ruff check data/
 # libraries/utils/validation_library.py
 """RF keyword library for API response validation."""
 from robot.api.deco import keyword, library
-import allure
+from robot.api import logger
 import jsonschema
 from libraries.api.response import ApiResponse
 
@@ -682,7 +676,6 @@ from libraries.api.response import ApiResponse
 class ValidationLibrary:
 
     @keyword("Validate Response")
-    @allure.step("Validate response: status={expected_status}")
     def validate_response(
         self,
         response: ApiResponse,
@@ -800,7 +793,7 @@ print('OK')
 
 ## Phase 5 — API Client Library
 
-**Goal:** `ApiClientLibrary` wraps `requests.Session`; attaches request/response JSON to Allure; masks secrets.
+**Goal:** `ApiClientLibrary` wraps `requests.Session`; logs request/response JSON to `log.html` via `robot.api.logger`; masks secrets.
 
 ### Step 5.1 — Implement `ApiResponse` dataclass (`libraries/api/response.py`)
 
@@ -822,9 +815,9 @@ class ApiResponse:
 # libraries/api/api_client.py
 import json
 import re
-import allure
 import requests
 from robot.api.deco import keyword, library
+from robot.api import logger
 from libraries.api.response import ApiResponse
 
 _SECRET_PATTERN = re.compile(r'"(password|token|Authorization)":\s*"[^"]*"', re.IGNORECASE)
@@ -852,30 +845,27 @@ class ApiClientLibrary:
         if token:
             headers["Authorization"] = f"Bearer {token}"
 
-        with allure.step(f"{method.upper()} {url}"):
-            resp = self._session.request(
-                method=method.upper(),
-                url=url,
-                headers=headers,
-                json=body,
-                params=params,
-            )
-            response = ApiResponse(
-                status=resp.status_code,
-                body=resp.json() if resp.text else {},
-                headers=dict(resp.headers),
-                text=resp.text,
-            )
-            allure.attach(
-                _mask_secrets(json.dumps(body, indent=2) if body else ""),
-                name="Request Body",
-                attachment_type=allure.attachment_type.JSON,
-            )
-            allure.attach(
-                _mask_secrets(json.dumps(response.body, indent=2)),
-                name=f"Response {response.status}",
-                attachment_type=allure.attachment_type.JSON,
-            )
+        logger.info(f"{method.upper()} {url}")
+        if body:
+            logger.debug(f"Request Body: {_mask_secrets(json.dumps(body, indent=2))}")
+
+        resp = self._session.request(
+            method=method.upper(),
+            url=url,
+            headers=headers,
+            json=body,
+            params=params,
+        )
+        response = ApiResponse(
+            status=resp.status_code,
+            body=resp.json() if resp.text else {},
+            headers=dict(resp.headers),
+            text=resp.text,
+        )
+        logger.info(
+            f"Response {response.status}: "
+            f"{_mask_secrets(json.dumps(response.body, indent=2))}"
+        )
         return response
 ```
 
@@ -897,7 +887,6 @@ python -c "from libraries.api.api_client import ApiClientLibrary; print('OK')"
 
 ```python
 from robot.api.deco import keyword, library
-import allure
 from libraries.api.api_client import ApiClientLibrary
 from libraries.api.response import ApiResponse
 import variables.api_config as api
@@ -909,21 +898,19 @@ class LoginApiLibrary:
         self._client = client
 
     @keyword("Login User")
-    @allure.step("POST /api/login — Login user")
     def login_user(self, username: str, password: str) -> ApiResponse:
         return self._client.send_api_request(
             "POST", api.LOGIN, body={"username": username, "password": password}
         )
 
     @keyword("Logout User")
-    @allure.step("POST /api/logout — Logout user")
     def logout_user(self, token: str) -> ApiResponse:
         return self._client.send_api_request("POST", api.LOGOUT, token=token)
 ```
 
 ### Step 6.2 — Implement `ProductsApiLibrary` (`libraries/api/endpoints/products_api_library.py`)
 
-Provide these keywords (each decorated with `@keyword` and `@allure.step`):
+Provide these keywords (each decorated with `@keyword`):
 
 - `Create Product` — POST `/api/products`
 - `Get Product By Id` — GET `/api/products/:id`
@@ -1155,7 +1142,7 @@ robot --include products --include api -d results tests/api/products/
 
 All tests should pass. Verify:
 
-- Allure steps appear in `results/log.html`
+- Keyword steps appear in `results/log.html` with correct nesting and timing
 - Cleanup removes created products after each test
 - DDT cases run as separate test instances
 
@@ -1794,69 +1781,84 @@ Orders List — Shows empty state when no orders
 
 ## Phase 18 — Reporting & Notifications
 
-**Goal:** Allure reports generated; Telegram notification sent in CI.
+**Goal:** Native Robot Framework reports generated; `log.html` includes keyword-level details and screenshots; Telegram notification sent in CI.
 
-### Step 18.1 — Configure Allure listener
+### Step 18.1 — Configure RF output directory
 
-Add to `robot.toml` for CI (or use CLI flag):
+Ensure `robot.toml` routes all output to `results/`:
 
 ```toml
-[ci]
-listener = "allure_robotframework"
+[default]
+variablefiles = [
+    "variables/env.py",
+    "variables/api_config.py",
+    "variables/constants.py",
+]
+outputdir = "results"
+loglevel  = "INFO"
 ```
 
-Add to CI run command:
+The `results/` directory will contain:
 
-```bash
-robot --listener allure_robotframework -d results tests/
-```
+| File          | Description                                                         |
+| ------------- | ------------------------------------------------------------------- |
+| `log.html`    | Full keyword-level execution log with timing, nested keyword trees  |
+| `report.html` | High-level pass/fail summary with statistics and suite breakdown    |
+| `output.xml`  | Machine-readable RF output (used for `rebot` merging, CI archiving) |
 
-### Step 18.2 — Add environment properties for Allure
+### Step 18.2 — Enable DEBUG-level logging for API details
 
-Create `scripts/write_allure_env.py`:
+To capture request/response bodies in `log.html`, use `robot.api.logger` inside `ApiClientLibrary`:
 
 ```python
-#!/usr/bin/env python3
-"""Write environment.properties to allure-results for Allure report."""
-import os
-from pathlib import Path
+# Already implemented in Phase 5 — ensure logger calls are present:
+from robot.api import logger
 
-results_dir = Path("allure-results")
-results_dir.mkdir(exist_ok=True)
-
-env = os.getenv("TEST_ENV", "local")
-ui_url = os.getenv("SALES_PORTAL_URL", "http://localhost:8585")
-api_url = os.getenv("SALES_PORTAL_API_URL", "http://localhost:8686")
-
-(results_dir / "environment.properties").write_text(
-    f"Environment={env}\n"
-    f"UI_URL={ui_url}\n"
-    f"API_URL={api_url}\n"
-    f"Framework=Robot Framework\n"
-    f"Browser=Playwright (Browser Library)\n"
-)
+logger.info(f"{method.upper()} {url}")
+logger.debug(f"Request Body: {_mask_secrets(json.dumps(body, indent=2))}")
+logger.info(f"Response {response.status}: {_mask_secrets(json.dumps(response.body, indent=2))}")
 ```
 
-### Step 18.3 — Add screenshot on test failure
+Run with `--loglevel DEBUG` to see full request/response bodies in `log.html`:
 
-In `resources/ui/ui_suite_setup.resource`, add to `Test Teardown`:
-
-```robot
-Test Teardown    Run Keywords
-...    Capture Page Screenshot    SEPARATOR=AND
-...    Full Delete Entities    ${ADMIN_TOKEN}
+```bash
+robot --loglevel DEBUG -d results tests/api/
 ```
 
-Or as a conditional keyword:
+### Step 18.3 — Add screenshot on UI test failure
+
+In `resources/ui/ui_suite_setup.resource`, use `Test Teardown` to capture screenshots:
 
 ```robot
 *** Keywords ***
 Take Screenshot On Failure
-    Run Keyword If Test Failed    Capture Page Screenshot
-    ...    filename=${TEST NAME}-failure.png
+    [Documentation]    Captures a screenshot if the current test failed.
+    Run Keyword If Test Failed
+    ...    Capture Page Screenshot    filename=${TEST NAME}-failure.png
 ```
 
-### Step 18.4 — Implement Telegram notification
+Add to UI test suites:
+
+```robot
+*** Settings ***
+Test Teardown    Run Keywords
+...    Take Screenshot On Failure    AND
+...    Full Delete Entities    ${ADMIN_TOKEN}
+```
+
+Screenshots are saved under `results/` and embedded directly in `log.html`.
+
+### Step 18.4 — Merge multiple output files with `rebot`
+
+When running API and UI tests in separate steps (e.g., CI), merge results into one report:
+
+```bash
+rebot --outputdir results --output output.xml results/api/output.xml results/ui/output.xml
+```
+
+This produces a single `log.html` and `report.html` combining all suites.
+
+### Step 18.5 — Implement Telegram notification
 
 ```python
 # scripts/notify_telegram.py
@@ -1881,47 +1883,43 @@ if __name__ == "__main__":
     asyncio.run(send_notification(msg))
 ```
 
-### Step 18.5 — Create `Makefile` targets
+### Step 18.6 — Create `Makefile` targets
 
 ```makefile
-.PHONY: install test-api test-ui test-smoke test-all lint report setup-auth
+.PHONY: install test-api test-ui test-smoke test-all lint setup-auth
 
 install:
-    pip install -e ".[dev]"
-    rfbrowser init chromium
+	pip install -e ".[dev]"
+	rfbrowser init chromium
 
 test-api:
-    robot --include api --include regression -d results tests/api/
+	robot --include api --include regression -d results tests/api/
 
 test-ui:
-    robot --include setup tests/ui/auth_setup.robot
-    robot --include ui --include regression --exclude setup -d results tests/ui/
+	robot --include setup tests/ui/auth_setup.robot
+	robot --include ui --include regression --exclude setup -d results tests/ui/
 
 test-smoke:
-    robot --include smoke -d results tests/
+	robot --include smoke -d results tests/
 
 test-all:
-    robot --include setup tests/ui/auth_setup.robot
-    robot --include regression --exclude setup -d results tests/
+	robot --include setup tests/ui/auth_setup.robot
+	robot --include regression --exclude setup -d results tests/
 
 lint:
-    ruff check libraries/ variables/ data/
-    mypy libraries/ variables/ data/
-    robocop resources/ tests/
-
-report:
-    allure generate allure-results -o allure-report --clean
-    allure open allure-report
+	ruff check libraries/ variables/ data/
+	mypy libraries/ variables/ data/
+	robocop resources/ tests/
 
 setup-auth:
-    robot --include setup -d results tests/ui/auth_setup.robot
+	robot --include setup -d results tests/ui/auth_setup.robot
 ```
 
 ---
 
 ## Phase 19 — CI/CD Pipelines
 
-**Goal:** GitHub Actions workflows for build checks and full test runs with Allure deploy.
+**Goal:** GitHub Actions workflows for build checks and full test runs with RF report upload.
 
 ### Step 19.1 — Create `.github/workflows/build.yml`
 
@@ -1968,9 +1966,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Java (for Allure CLI)
-        run: apt-get update && apt-get install -y openjdk-17-jdk-headless
-
       - name: Install Python deps
         run: pip install -e .
 
@@ -1990,30 +1985,27 @@ jobs:
       - name: Run API Tests
         run: |
           robot --include api --include regression \
-                --listener allure_robotframework \
                 --outputdir results/api \
                 tests/api/
 
       - name: Run UI Tests
         run: |
           robot --include ui --include regression --exclude setup \
-                --listener allure_robotframework \
                 --outputdir results/ui \
                 tests/ui/
 
-      - name: Write Allure Environment
-        run: python scripts/write_allure_env.py
-
-      - name: Generate Allure Report
-        run: allure generate allure-results -o allure-report --clean
+      - name: Merge results
         if: always()
+        run: |
+          rebot --outputdir results --output output.xml \
+                results/api/output.xml results/ui/output.xml
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Upload RF report
+        uses: actions/upload-artifact@v4
         if: always()
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: allure-report
+          name: robot-report
+          path: results/
 
       - name: Send Telegram Notification
         if: always()
@@ -2022,8 +2014,7 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           STATUS="${{ job.status }}"
-          REPORT_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
-          python scripts/notify_telegram.py "${STATUS}" "${REPORT_URL}"
+          python scripts/notify_telegram.py "${STATUS}"
 ```
 
 ### Step 19.3 — Configure repository secrets
@@ -2031,9 +2022,7 @@ jobs:
 In GitHub repository settings → Secrets:
 
 - `TELEGRAM_BOT_TOKEN`
-- `TELEGRAM_CHAT_ID`
-
----
+- `TELEGRAM_CHAT_ID`---
 
 ## Phase 20 — Final Polish & Documentation
 
@@ -2062,8 +2051,8 @@ cd sales-portal && docker-compose up --build -d && cd ..
 # Run all tests
 make test-all
 
-# Generate and open Allure report
-make report
+# Open the RF report
+open results/report.html   # or xdg-open results/report.html on Linux
 ```
 
 ### Step 20.3 — Update `README.md`
@@ -2071,14 +2060,14 @@ make report
 Document:
 
 1. **Project overview** — what this framework tests and how it relates to the TS/Python counterparts
-2. **Prerequisites** — Python 3.12+, Docker/Docker Compose, Java 17 (for Allure CLI)
+2. **Prerequisites** — Python 3.12+, Docker/Docker Compose
 3. **Quick start** — `git clone` → `pip install -e .` → `rfbrowser init` → `make test-all`
 4. **Running specific suites** — `robot --include smoke tests/` etc.
 5. **Environment setup** — copy `.env.dist` to `.env`, fill values
-6. **Reporting** — `make report` to view Allure report locally
+6. **Reporting** — open `results/report.html` (overview) or `results/log.html` (keyword-level detail) after a run
 7. **Project structure** — brief layer overview with directory tree
 8. **Adding new tests** — which layer to edit (library vs resource vs test suite)
-9. **CI/CD** — link to GitHub Actions + Allure report URL
+9. **CI/CD** — link to GitHub Actions + uploaded `robot-report` artifact
 
 ### Step 20.4 — Final verification checklist
 
@@ -2087,9 +2076,11 @@ Document:
 - [ ] `make test-ui` — all UI tests pass (with running app)
 - [ ] `make test-smoke` — smoke tests pass
 - [ ] Cleanup verified — no orphaned entities after test run (check DB via Mongo Express)
-- [ ] Allure report generated with correct steps, attachments, and environment info
+- [ ] `results/report.html` shows correct pass/fail statistics
+- [ ] `results/log.html` shows full keyword-level steps, request/response logs, and embedded failure screenshots
 - [ ] CI workflow triggers and passes on push to `main`
-- [ ] Telegram notification sent with report link
+- [ ] RF report artifact uploaded in CI run
+- [ ] Telegram notification sent after CI run
 - [ ] `README.md` is up to date
 
 ---
@@ -2098,51 +2089,51 @@ Document:
 
 This table maps every major component of the existing Python pytest framework to its Robot Framework equivalent in this plan:
 
-| pytest Component                                  | Robot Framework Equivalent                                          | Phase |
-| ------------------------------------------------- | ------------------------------------------------------------------- | ----- |
-| `config/env.py`                                   | `variables/env.py`                                                  | 2     |
-| `config/api_config.py`                            | `variables/api_config.py`                                           | 2     |
-| `data/sales_portal/constants.py`                  | `variables/constants.py`                                            | 2     |
-| `data/enums/` (StrEnum classes)                   | `data/enums/` (same Python StrEnum classes)                         | 3     |
-| `data/models/` (Pydantic)                         | `data/models/` (same Pydantic models)                               | 3     |
-| `data/schemas/` (JSON Schema dicts)               | `data/schemas/` (same Python dicts)                                 | 3     |
-| `data/sales_portal/*/generate_*.py`               | `data/generators/generate_*.py` (same `faker` generators)           | 3     |
-| DDT `*_POSITIVE_CASES` / `*_NEGATIVE_CASES` lists | `data/ddt/*.csv` files (DataDriver)                                 | 3     |
-| `utils/validation/validate_response.py`           | `libraries/utils/validation_library.py`                             | 4     |
-| `utils/date_utils.py`                             | `libraries/utils/date_utils_library.py`                             | 4     |
-| `utils/notifications/telegram_service.py`         | `libraries/utils/notifications/telegram_library.py`                 | 4     |
-| `api/api_clients/playwright_api_client.py`        | `libraries/api/api_client.py` (requests wrapper)                    | 5     |
-| `api/api/login_api.py`                            | `libraries/api/endpoints/login_api_library.py`                      | 6     |
-| `api/api/products_api.py`                         | `libraries/api/endpoints/products_api_library.py`                   | 6     |
-| `api/api/customers_api.py`                        | `libraries/api/endpoints/customers_api_library.py`                  | 6     |
-| `api/api/orders_api.py`                           | `libraries/api/endpoints/orders_api_library.py`                     | 6     |
-| `api/api/notifications_api.py`                    | `libraries/api/endpoints/notifications_api_library.py`              | 6     |
-| `api/service/login_service.py`                    | `resources/api/service/login_service.resource`                      | 7     |
-| `api/service/products_service.py`                 | `resources/api/service/products_service.resource`                   | 7     |
-| `api/service/customers_service.py`                | `resources/api/service/customers_service.resource`                  | 7     |
-| `api/service/orders_service.py`                   | `resources/api/service/orders_service.resource`                     | 7     |
-| `api/service/stores/entities_store.py`            | `libraries/stores/entity_store_library.py`                          | 10    |
-| `api/facades/orders_facade_service.py`            | `resources/api/facades/orders_facade.resource`                      | 7     |
-| `tests/conftest.py` (session fixtures)            | `Suite Setup` keywords in each test suite                           | 8     |
-| `tests/conftest.py` `cleanup` fixture             | `Test Teardown    Full Delete Entities` + `EntityStoreLibrary`      | 10    |
-| `ui/pages/base_page.py`                           | `resources/ui/pages/base_page.resource`                             | 11    |
-| `ui/pages/sales_portal_page.py`                   | `resources/ui/pages/sales_portal_page.resource`                     | 11    |
-| `ui/pages/base_modal.py`                          | `resources/ui/pages/base_modal.resource`                            | 11    |
-| `ui/pages/login/`                                 | `resources/ui/pages/login_page.resource`                            | 11    |
-| `ui/pages/products/`                              | `resources/ui/pages/products/`                                      | 12    |
-| `ui/pages/customers/`                             | `resources/ui/pages/customers/`                                     | 12    |
-| `ui/pages/orders/`                                | `resources/ui/pages/orders/`                                        | 12    |
-| `ui/service/*_ui_service.py`                      | `resources/ui/service/*.resource`                                   | 13    |
-| `mock/mock.py`                                    | `libraries/mock/mock_library.py`                                    | 14    |
-| `tests/ui/conftest.py` (storage_state_path)       | `tests/ui/auth_setup.robot`                                         | 15    |
-| `tests/ui/conftest.py` (browser_context_args)     | `resources/ui/ui_suite_setup.resource`                              | 15    |
-| `tests/api/**`                                    | `tests/api/**/*.robot`                                              | 8–9   |
-| `tests/ui/orders/**`                              | `tests/ui/orders/**/*.robot`                                        | 16    |
-| `tests/ui/integration/**`                         | `tests/ui/integration/**/*.robot`                                   | 17    |
-| `utils/report/` (Allure)                          | `allure-robotframework` listener + `@allure.step()` in keyword libs | 18    |
-| `scripts/notify_telegram.py`                      | `scripts/notify_telegram.py` (identical)                            | 18    |
-| `Makefile`                                        | `Makefile` (RF equivalents of make targets)                         | 18    |
-| `.github/workflows/`                              | `.github/workflows/` (RF-adapted CI steps)                          | 19    |
+| pytest Component                                  | Robot Framework Equivalent                                                      | Phase |
+| ------------------------------------------------- | ------------------------------------------------------------------------------- | ----- |
+| `config/env.py`                                   | `variables/env.py`                                                              | 2     |
+| `config/api_config.py`                            | `variables/api_config.py`                                                       | 2     |
+| `data/sales_portal/constants.py`                  | `variables/constants.py`                                                        | 2     |
+| `data/enums/` (StrEnum classes)                   | `data/enums/` (same Python StrEnum classes)                                     | 3     |
+| `data/models/` (Pydantic)                         | `data/models/` (same Pydantic models)                                           | 3     |
+| `data/schemas/` (JSON Schema dicts)               | `data/schemas/` (same Python dicts)                                             | 3     |
+| `data/sales_portal/*/generate_*.py`               | `data/generators/generate_*.py` (same `faker` generators)                       | 3     |
+| DDT `*_POSITIVE_CASES` / `*_NEGATIVE_CASES` lists | `data/ddt/*.csv` files (DataDriver)                                             | 3     |
+| `utils/validation/validate_response.py`           | `libraries/utils/validation_library.py`                                         | 4     |
+| `utils/date_utils.py`                             | `libraries/utils/date_utils_library.py`                                         | 4     |
+| `utils/notifications/telegram_service.py`         | `libraries/utils/notifications/telegram_library.py`                             | 4     |
+| `api/api_clients/playwright_api_client.py`        | `libraries/api/api_client.py` (requests wrapper)                                | 5     |
+| `api/api/login_api.py`                            | `libraries/api/endpoints/login_api_library.py`                                  | 6     |
+| `api/api/products_api.py`                         | `libraries/api/endpoints/products_api_library.py`                               | 6     |
+| `api/api/customers_api.py`                        | `libraries/api/endpoints/customers_api_library.py`                              | 6     |
+| `api/api/orders_api.py`                           | `libraries/api/endpoints/orders_api_library.py`                                 | 6     |
+| `api/api/notifications_api.py`                    | `libraries/api/endpoints/notifications_api_library.py`                          | 6     |
+| `api/service/login_service.py`                    | `resources/api/service/login_service.resource`                                  | 7     |
+| `api/service/products_service.py`                 | `resources/api/service/products_service.resource`                               | 7     |
+| `api/service/customers_service.py`                | `resources/api/service/customers_service.resource`                              | 7     |
+| `api/service/orders_service.py`                   | `resources/api/service/orders_service.resource`                                 | 7     |
+| `api/service/stores/entities_store.py`            | `libraries/stores/entity_store_library.py`                                      | 10    |
+| `api/facades/orders_facade_service.py`            | `resources/api/facades/orders_facade.resource`                                  | 7     |
+| `tests/conftest.py` (session fixtures)            | `Suite Setup` keywords in each test suite                                       | 8     |
+| `tests/conftest.py` `cleanup` fixture             | `Test Teardown    Full Delete Entities` + `EntityStoreLibrary`                  | 10    |
+| `ui/pages/base_page.py`                           | `resources/ui/pages/base_page.resource`                                         | 11    |
+| `ui/pages/sales_portal_page.py`                   | `resources/ui/pages/sales_portal_page.resource`                                 | 11    |
+| `ui/pages/base_modal.py`                          | `resources/ui/pages/base_modal.resource`                                        | 11    |
+| `ui/pages/login/`                                 | `resources/ui/pages/login_page.resource`                                        | 11    |
+| `ui/pages/products/`                              | `resources/ui/pages/products/`                                                  | 12    |
+| `ui/pages/customers/`                             | `resources/ui/pages/customers/`                                                 | 12    |
+| `ui/pages/orders/`                                | `resources/ui/pages/orders/`                                                    | 12    |
+| `ui/service/*_ui_service.py`                      | `resources/ui/service/*.resource`                                               | 13    |
+| `mock/mock.py`                                    | `libraries/mock/mock_library.py`                                                | 14    |
+| `tests/ui/conftest.py` (storage_state_path)       | `tests/ui/auth_setup.robot`                                                     | 15    |
+| `tests/ui/conftest.py` (browser_context_args)     | `resources/ui/ui_suite_setup.resource`                                          | 15    |
+| `tests/api/**`                                    | `tests/api/**/*.robot`                                                          | 8–9   |
+| `tests/ui/orders/**`                              | `tests/ui/orders/**/*.robot`                                                    | 16    |
+| `tests/ui/integration/**`                         | `tests/ui/integration/**/*.robot`                                               | 17    |
+| `utils/report/` (Allure)                          | `robot.api.logger` in keyword libs → `results/log.html` + `results/report.html` | 18    |
+| `scripts/notify_telegram.py`                      | `scripts/notify_telegram.py` (identical)                                        | 18    |
+| `Makefile`                                        | `Makefile` (RF equivalents of make targets)                                     | 18    |
+| `.github/workflows/`                              | `.github/workflows/` (RF-adapted CI steps)                                      | 19    |
 
 ---
 
