@@ -1,0 +1,12 @@
+case_name,email,name,country,city,street,house,flat,phone,expected_status,expected_error
+Empty email,${EMPTY},John Smith,USA,New York,Main Street 12,10,5,+12025551234,400,Incorrect request body
+Invalid email,not-an-email,John Smith,USA,New York,Main Street 12,10,5,+12025551234,400,Incorrect request body
+Empty name,valid@mail.com,${EMPTY},USA,New York,Main Street 12,10,5,+12025551234,400,Incorrect request body
+Name too long,valid@mail.com,This Name Is Way Way Way Way Too Long For The System,USA,New York,Main St 1,10,5,+12025551234,400,Incorrect request body
+Invalid country,valid@mail.com,John Smith,Atlantis,New York,Main Street 12,10,5,+12025551234,400,Incorrect request body
+Empty city,valid@mail.com,John Smith,USA,${EMPTY},Main Street 12,10,5,+12025551234,400,Incorrect request body
+House zero,valid@mail.com,John Smith,USA,New York,Main Street 12,0,5,+12025551234,400,Incorrect request body
+House over max,valid@mail.com,John Smith,USA,New York,Main Street 12,1000,5,+12025551234,400,Incorrect request body
+Flat zero,valid@mail.com,John Smith,USA,New York,Main Street 12,10,0,+12025551234,400,Incorrect request body
+Invalid phone - no plus,valid@mail.com,John Smith,USA,New York,Main Street 12,10,5,12025551234,400,Incorrect request body
+Phone too short,valid@mail.com,John Smith,USA,New York,Main Street 12,10,5,+123,400,Incorrect request body

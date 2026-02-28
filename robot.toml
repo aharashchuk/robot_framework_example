@@ -1,7 +1,11 @@
 # robot.toml
 [default]
-variablefiles = ["variables/env.py"]
-outputdir    = "results"
-loglevel     = "INFO"
+variablefiles = [
+    "variables/env.py",
+    "variables/api_config.py",
+    "variables/constants.py",
+]
+outputdir = "results"
+loglevel  = "INFO"
 # Global listener for Allure reporting (enable in CI or via CLI flag)
 # listener     = "allure_robotframework"

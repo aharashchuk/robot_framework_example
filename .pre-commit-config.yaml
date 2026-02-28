@@ -14,15 +14,20 @@ repos:
       - id: mypy
         files: "^(libraries|variables|data)/"
         additional_dependencies: [pydantic>=2.10, robotframework>=7.0]
+        args: [--explicit-package-bases]
 
-  - repo: https://github.com/MarketSquare/robotframework-robocop
-    rev: 5.0.0
+  - repo: local
     hooks:
       - id: robocop
+        name: robocop
+        language: system
+        entry: robocop
         files: '\.(robot|resource)$'
+        pass_filenames: true
 
-  - repo: https://github.com/MarketSquare/robotidy
-    rev: 4.15.0
-    hooks:
       - id: robotidy
+        name: robotidy
+        language: system
+        entry: robotidy
         files: '\.(robot|resource)$'
+        pass_filenames: true
