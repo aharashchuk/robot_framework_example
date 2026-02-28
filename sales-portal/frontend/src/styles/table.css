@@ -1,0 +1,31 @@
+/* Оверлей для спиннера */
+.overlay-spinner {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.3); /* Легкое затемнение */
+}
+
+/* Спиннер в верхней части таблицы */
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* Спиннер в верхней части */
+  padding-top: 10px; /* Отступ от верха */
+}
+
+.spinner-container-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.table:not([name="table-with-no-actions"]) td:last-child,
+.table:not([name="table-with-no-actions"]) th:last-child {
+  position: sticky;
+  right: 0;
+}
