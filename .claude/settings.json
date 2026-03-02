@@ -2,14 +2,17 @@
   "permissions": {
     "allow": [
       "Read(**)",
-      "Bash(sales-portal-robot-tests/.venv/bin/mypy *)",
-      "Bash(sales-portal-robot-tests/.venv/bin/ruff *)",
-      "Bash(sales-portal-robot-tests/.venv/bin/python3 *)",
-      "Bash(sales-portal-robot-tests/.venv/bin/python *)",
-      "Bash(sales-portal-robot-tests/.venv/bin/robocop *)",
       "Bash(ls *)",
       "Bash(find *)",
-      "Bash(cat *)"
+      "Bash(cat *)",
+      "Bash(grep *)",
+      "Bash(docker compose *)",
+      "Bash(source sales-portal-robot-tests/.venv/bin/activate && mypy *)",
+      "Bash(source sales-portal-robot-tests/.venv/bin/activate && ruff *)",
+      "Bash(source sales-portal-robot-tests/.venv/bin/activate && python *)",
+      "Bash(source sales-portal-robot-tests/.venv/bin/activate && robocop *)",
+      "Bash(source sales-portal-robot-tests/.venv/bin/activate && robotidy *)",
+      "Bash(source sales-portal-robot-tests/.venv/bin/activate && robot *)"
     ]
   }
 }
