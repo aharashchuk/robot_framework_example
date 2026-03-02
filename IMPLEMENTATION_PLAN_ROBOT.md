@@ -65,10 +65,10 @@ Default admin credentials: `admin@example.com` / `admin123`
 - [Phase 4 — Utility Keyword Libraries](#phase-4--utility-keyword-libraries)
 - [Phase 5 — API Client Library](#phase-5--api-client-library)
 - [Phase 6 — API Endpoint Keyword Libraries](#phase-6--api-endpoint-keyword-libraries)
+- [Phase 10 — Entity Store Library & Cleanup Pattern](#phase-10--entity-store-library--cleanup-pattern) ← **implement before Phase 7**
 - [Phase 7 — API Service & Facade Resources](#phase-7--api-service--facade-resources)
 - [Phase 8 — First API Tests (Login + Products)](#phase-8--first-api-tests-login--products)
 - [Phase 9 — Remaining API Tests](#phase-9--remaining-api-tests)
-- [Phase 10 — Entity Store Library & Cleanup Pattern](#phase-10--entity-store-library--cleanup-pattern)
 - [Phase 11 — UI Base Layer (Page Resources)](#phase-11--ui-base-layer-page-resources)
 - [Phase 12 — UI Domain Page Resources](#phase-12--ui-domain-page-resources)
 - [Phase 13 — UI Service Resources](#phase-13--ui-service-resources)
@@ -93,7 +93,7 @@ mkdir sales-portal-robot-tests && cd sales-portal-robot-tests
 git init
 
 # Create virtual environment
-python3.12 -m venv .venv
+python3.10 -m venv .venv
 source .venv/bin/activate
 ```
 
@@ -105,7 +105,7 @@ Define project metadata, all dependencies, and tool configurations:
 [project]
 name = "sales-portal-robot-tests"
 version = "1.0.0"
-requires-python = ">=3.12"
+requires-python = ">=3.10"
 dependencies = [
     "robotframework>=7.0",
     "robotframework-browser>=18.0",
@@ -141,14 +141,14 @@ include = ["libraries*", "variables*", "data*"]
 
 [tool.mypy]
 strict = true
-python_version = "3.12"
+python_version = "3.10"
 plugins = ["pydantic.mypy"]
 ignore_missing_imports = true
 exclude = [".venv"]
 
 [tool.ruff]
 line-length = 120
-target-version = "py312"
+target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF"]
@@ -887,15 +887,21 @@ python -c "from libraries.api.api_client import ApiClientLibrary; print('OK')"
 
 ```python
 from robot.api.deco import keyword, library
-from libraries.api.api_client import ApiClientLibrary
+from robot.libraries.BuiltIn import BuiltIn
 from libraries.api.response import ApiResponse
 import variables.api_config as api
 
-@library(scope="SESSION")
+@library(scope="SUITE")
 class LoginApiLibrary:
+    """Keywords for /api/login and /api/logout.
 
-    def __init__(self, client: ApiClientLibrary) -> None:
-        self._client = client
+    Retrieves the shared ApiClientLibrary instance via BuiltIn at call time —
+    RF does not support constructor dependency injection.
+    """
+
+    @property
+    def _client(self):  # type: ignore[return]
+        return BuiltIn().get_library_instance("ApiClient")
 
     @keyword("Login User")
     def login_user(self, username: str, password: str) -> ApiResponse:
@@ -907,6 +913,8 @@ class LoginApiLibrary:
     def logout_user(self, token: str) -> ApiResponse:
         return self._client.send_api_request("POST", api.LOGOUT, token=token)
 ```
+
+> **Note for Steps 6.2–6.5:** Apply the same `get_library_instance` pattern to every endpoint library (`ProductsApiLibrary`, `CustomersApiLibrary`, `OrdersApiLibrary`, `NotificationsApiLibrary`). Use `scope="SUITE"` on all of them. Do **not** use constructor injection — RF instantiates keyword libraries without arguments.
 
 ### Step 6.2 — Implement `ProductsApiLibrary` (`libraries/api/endpoints/products_api_library.py`)
 
@@ -959,6 +967,8 @@ print('All API libraries OK')
 ---
 
 ## Phase 7 — API Service & Facade Resources
+
+> **Prerequisite:** `EntityStoreLibrary` must be implemented before this phase. Implement [Phase 10](#phase-10--entity-store-library--cleanup-pattern) first — it is required by the service resources below.
 
 **Goal:** High-level `.resource` files composing endpoint keywords into business flows.
 
@@ -1040,6 +1050,38 @@ robotidy --check resources/
 ## Phase 8 — First API Tests (Login + Products)
 
 **Goal:** Login and Products API test suites pass; DDT working; cleanup verified.
+
+### Step 8.0 — Create `tests/api/login/test_login.robot`
+
+```robot
+*** Settings ***
+Documentation    API tests — POST /api/login
+Metadata         Suite        API
+Metadata         Sub-Suite    Login
+
+Library    libraries/api/api_client.py                       WITH NAME    ApiClient
+Library    libraries/api/endpoints/login_api_library.py      WITH NAME    LoginApi
+Library    libraries/utils/validation_library.py             WITH NAME    Validation
+
+Variables  variables/env.py
+
+*** Test Cases ***
+Login — Valid credentials returns 200 and token
+    [Tags]    smoke    regression    api    login
+    ${response}=    LoginApi.Login User    ${USER_NAME}    ${USER_PASSWORD}
+    Validation.Validate Response    ${response}    200
+    Should Not Be Empty    ${response.headers["Authorization"]}
+
+Login — Invalid password returns 400
+    [Tags]    regression    api    login
+    ${response}=    LoginApi.Login User    ${USER_NAME}    wrong_password
+    Validation.Validate Response    ${response}    400
+
+Login — Non-existent user returns 400
+    [Tags]    regression    api    login
+    ${response}=    LoginApi.Login User    nonexistent@example.com    any_password
+    Validation.Validate Response    ${response}    400
+```
 
 ### Step 8.1 — Create `tests/api/products/test_create_product.robot`
 
@@ -1177,10 +1219,25 @@ Create test files mirroring the pytest project's `tests/api/orders/`:
 
 ### Step 9.3 — Shared API test infrastructure
 
-Add a `tests/api/__init__.robot` or shared `conftest.resource` (loaded via `resource` in each suite) that provides:
+Use `tests/api/__init__.robot` for suite-level setup/teardown that applies to every suite under `tests/api/`. For shared keyword imports, create a named resource file `resources/api/api_test_setup.resource` and import it explicitly in each test suite via `Resource`:
 
-- `Suite Setup    Setup Admin Token` keyword
-- Common imports
+```robot
+# tests/api/__init__.robot — suite initialisation (runs once for the api/ directory)
+*** Settings ***
+Documentation    Suite-level setup for all API tests.
+```
+
+```robot
+# resources/api/api_test_setup.resource — shared keyword/library imports
+*** Settings ***
+Library    libraries/api/api_client.py                      WITH NAME    ApiClient
+Library    libraries/utils/validation_library.py            WITH NAME    Validation
+Library    libraries/stores/entity_store_library.py         WITH NAME    EntityStore
+
+Resource   resources/api/service/login_service.resource
+```
+
+> **Note:** RF's `__init__.robot` applies suite-level `Suite Setup`/`Suite Teardown` to the entire directory tree. It is **not** a pytest-style `conftest.py` — it does not share keyword imports. Use explicit `Resource` imports for that.
 
 ### Step 9.4 — Run and verify
 
@@ -1191,6 +1248,8 @@ robot --include api --include regression -d results tests/api/
 ---
 
 ## Phase 10 — Entity Store Library & Cleanup Pattern
+
+> **Implementation order:** Despite its number, implement this phase **before Phase 7**. Phase 7 service resources (`products_service.resource`, `customers_service.resource`, `orders_service.resource`) all depend on `EntityStoreLibrary`.
 
 **Goal:** `EntityStoreLibrary` fully implemented; teardown verified across all API test suites.
 
@@ -1276,7 +1335,7 @@ Accept Cookies If Present
 
 Wait For Spinner To Disappear
     [Documentation]    Waits for loading spinner to become hidden.
-    Wait For Elements State    css=.spinner, css=[data-cy="spinner"]
+    Wait For Elements State    css=.spinner,[data-cy="spinner"]
     ...    hidden    timeout=${SPINNER_TIMEOUT}
 ```
 
@@ -1295,7 +1354,7 @@ Open Sales Portal Page
 
 Wait For Toast Message
     [Arguments]    ${expected_text}=${EMPTY}
-    Wait For Elements State    css=.toast, css=[data-cy="toast"]    visible    timeout=${TOAST_TIMEOUT}
+    Wait For Elements State    css=.toast,[data-cy="toast"]    visible    timeout=${TOAST_TIMEOUT}
     IF    "${expected_text}" != "${EMPTY}"
         Get Text    css=.toast    ==    ${expected_text}
     END
@@ -1541,18 +1600,19 @@ class MockLibrary:
 
     @keyword("Clear All Mocks")
     def clear_all_mocks(self) -> None:
-        self._browser().unregister_keyword_to_run_on_failure(None)
+        """Removes all active Playwright route handlers from the current page."""
+        self._browser().unroute("**")
 ```
 
 ### Step 14.2 — Create mock data builders (`data/generators/mock_data_builders.py`)
 
 ```python
 # data/generators/mock_data_builders.py
-from bson import ObjectId
+import uuid
 
 def build_mock_product(**overrides) -> dict:
     return {
-        "_id": str(ObjectId()),
+        "_id": str(uuid.uuid4()),
         "name": "Mock Product",
         "amount": 10,
         "price": 100,
@@ -1562,7 +1622,7 @@ def build_mock_product(**overrides) -> dict:
 
 def build_mock_order(**overrides) -> dict:
     return {
-        "_id": str(ObjectId()),
+        "_id": str(uuid.uuid4()),
         "status": "Draft",
         "customer": build_mock_customer(),
         "products": [],
@@ -1638,6 +1698,8 @@ Or via `pabot` with suite ordering:
 pabot --processes 1 tests/ui/auth_setup.robot
 pabot --processes 4 --exclude setup --include ui tests/ui/
 ```
+
+> **Important for pabot:** `auth_setup.robot` **must always run to completion before** the parallel workers start. It writes `storageState` to `${STORAGE_STATE_PATH}` — parallel contexts only read this file, never write it. Running auth setup with `--processes 1` (sequentially) satisfies this constraint. Never include `auth_setup.robot` in the same parallel batch as the UI tests.
 
 ---
 
@@ -1976,8 +2038,9 @@ jobs:
         run: |
           cd sales-portal
           docker-compose up --build -d
-          # Wait for app to be ready
-          sleep 15
+          # Wait for backend to be ready (poll every 2 s, timeout 60 s)
+          echo "Waiting for backend..."
+          timeout 60 bash -c 'until curl -sf http://localhost:8686/api/docs > /dev/null 2>&1; do sleep 2; done'
 
       - name: Generate Auth State
         run: robot --include setup -d results tests/ui/auth_setup.robot
