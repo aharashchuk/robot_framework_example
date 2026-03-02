@@ -18,9 +18,16 @@ Use `robotframework-browser` (wraps Playwright) for UI tests. This aligns with t
 - Storage state injection for session-scoped auth (no repeated login in UI tests)
 - Built-in auto-wait, tracing, screenshots, and video recording
 
-### Decision 2 — `RequestsLibrary` for API tests, not Browser Library HTTP
+### Decision 2 — `ApiClientLibrary` (pure Python) for API tests, not Browser Library HTTP
 
-Use `robotframework-requests` (`RequestsLibrary`) for API tests. It provides clean RF keywords (`GET`, `POST`, `PUT`, `DELETE`, `PATCH`) that map directly to the HTTP verbs without needing a browser context. A thin Python wrapper library (`ApiClientLibrary`) adds request/response logging to the RF native log and secret masking on top.
+`ApiClientLibrary` (Phase 5) is the **sole HTTP engine** for all API tests. It wraps `requests.Session` directly and adds:
+
+- Request/response logging to `log.html` via `robot.api.logger`
+- Secret masking on Authorization headers, passwords, and tokens
+
+`robotframework-requests` is listed as a dependency for its response utilities, but `RequestsLibrary` RF keywords (`GET`, `POST`, etc.) are **not used** in test suites — all HTTP calls go through `ApiClientLibrary.Send API Request`.
+
+> **Naming convention:** `ApiClientLibrary` must always be imported with `WITH NAME    ApiClient`. Endpoint libraries resolve it at call time via `BuiltIn().get_library_instance("ApiClient")` — this is what makes the alias mandatory.
 
 ### Decision 3 — Hybrid DDT approach
 
@@ -127,8 +134,8 @@ dev = [
     "ruff>=0.8",
     "mypy>=1.14",
     "pre-commit>=4.0",
-    "robocop>=5.0",
-    "robotidy>=4.15",
+    "robotframework-robocop>=5.0",
+    "robotframework-tidy>=4.15",
 ]
 
 [build-system]
@@ -1999,7 +2006,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.10"
       - run: pip install -e ".[dev]"
       - run: rfbrowser init chromium
       - run: ruff check libraries/ variables/ data/
@@ -2123,7 +2130,7 @@ open results/report.html   # or xdg-open results/report.html on Linux
 Document:
 
 1. **Project overview** — what this framework tests and how it relates to the TS/Python counterparts
-2. **Prerequisites** — Python 3.12+, Docker/Docker Compose
+2. **Prerequisites** — Python 3.10+, Docker/Docker Compose
 3. **Quick start** — `git clone` → `pip install -e .` → `rfbrowser init` → `make test-all`
 4. **Running specific suites** — `robot --include smoke tests/` etc.
 5. **Environment setup** — copy `.env.dist` to `.env`, fill values
