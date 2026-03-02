@@ -1,0 +1,9 @@
+case_name,name,amount,price,manufacturer,expected_status
+All valid fields - Samsung,Samsung Phone TT01,10,999,Samsung,201
+All valid fields - Apple,Apple Watch AA02,5,599,Apple,201
+Max price value,Product Alpha 123,1,99999,Google,201
+Max amount value,Product Beta 456,999,1,Microsoft,201
+Min values,Product Min 789,0,1,Sony,201
+Notes provided,Product Notes 01,10,250,Xiaomi,201
+Amazon product,Amazon Echo 77,20,4999,Amazon,201
+Tesla product,Tesla Charger 88,3,19999,Tesla,201

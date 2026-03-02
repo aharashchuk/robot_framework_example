@@ -1,0 +1,5 @@
+case_name,num_products,expected_status
+Single product,1,201
+Two products,2,201
+Three products,3,201
+Max products - five,5,201

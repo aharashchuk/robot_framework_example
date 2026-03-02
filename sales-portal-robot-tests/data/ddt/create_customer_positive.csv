@@ -1,0 +1,7 @@
+case_name,email,name,country,city,street,house,flat,phone,expected_status
+All valid fields - USA,test.customer01@mail.com,John Smith,USA,New York,Main Street 12,10,5,+12025551234,201
+All valid fields - Canada,test.customer02@mail.com,Jane Doe,Canada,Toronto,King Street 5,55,200,+14165559876,201
+All valid fields - Ukraine,test.customer03@mail.com,Ivan Petrenko,Ukraine,Kyiv,Khreshchatyk 1,3,100,+380501112233,201
+All valid fields - Germany,test.customer04@mail.com,Hans Mueller,Germany,Berlin,Berliner Str 7,99,1,+4930111222333,201
+Max house number,test.customer05@mail.com,Alice Cooper,France,Paris,Rue de la Paix 1,999,1,+33123456789,201
+Max flat number,test.customer06@mail.com,Bob White,Belarus,Minsk,Lenina 2,1,9999,+375291234567,201

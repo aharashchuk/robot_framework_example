@@ -1,0 +1,33 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.0
+    hooks:
+      - id: ruff
+        args: [--fix]
+        files: "^(libraries|variables|data)/"
+      - id: ruff-format
+        files: "^(libraries|variables|data)/"
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.14.0
+    hooks:
+      - id: mypy
+        files: "^(libraries|variables|data)/"
+        additional_dependencies: [pydantic>=2.10, robotframework>=7.0]
+        args: [--explicit-package-bases]
+
+  - repo: local
+    hooks:
+      - id: robocop
+        name: robocop
+        language: system
+        entry: robocop
+        files: '\.(robot|resource)$'
+        pass_filenames: true
+
+      - id: robotidy
+        name: robotidy
+        language: system
+        entry: robotidy
+        files: '\.(robot|resource)$'
+        pass_filenames: true
