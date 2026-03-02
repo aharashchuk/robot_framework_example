@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(**)",
+      "Bash(sales-portal-robot-tests/.venv/bin/mypy *)",
+      "Bash(sales-portal-robot-tests/.venv/bin/ruff *)",
+      "Bash(sales-portal-robot-tests/.venv/bin/python3 *)",
+      "Bash(sales-portal-robot-tests/.venv/bin/python *)",
+      "Bash(sales-portal-robot-tests/.venv/bin/robocop *)",
+      "Bash(ls *)",
+      "Bash(find *)",
+      "Bash(cat *)"
+    ]
+  }
+}
