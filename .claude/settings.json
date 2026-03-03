@@ -25,7 +25,10 @@
       "Bash(.venv/bin/python3 *)",
       "Bash(TEST_ENV=* .venv/bin/robot *)",
       "Bash(TEST_ENV=* PYTHONPATH=. .venv/bin/robot *)",
-      "Bash(cd sales-portal-robot-tests && TEST_ENV=* python -m robot *)"
+      "Bash(cd sales-portal-robot-tests && TEST_ENV=* python -m robot *)",
+      "Bash(xargs cat)",
+      "Bash(xargs ls)",
+      "Bash(python3 -m json.tool)"
     ]
   }
 }

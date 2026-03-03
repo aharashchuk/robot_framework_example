@@ -1,4 +1,4 @@
-case_name,email,name,country,city,street,house,flat,phone,expected_status,expected_error
+${case_name},${email},${name},${country},${city},${street},${house},${flat},${phone},${expected_status},${expected_error}
 Empty email,${EMPTY},John Smith,USA,New York,Main Street 12,10,5,+12025551234,400,Incorrect request body
 Invalid email,not-an-email,John Smith,USA,New York,Main Street 12,10,5,+12025551234,400,Incorrect request body
 Empty name,valid@mail.com,${EMPTY},USA,New York,Main Street 12,10,5,+12025551234,400,Incorrect request body

@@ -20,7 +20,7 @@ ORDER_PRODUCT_SCHEMA: dict[str, Any] = {
         "notes": {"type": "string"},
         "received": {"type": "boolean"},
     },
-    "required": ["_id", "name", "amount", "price", "manufacturer", "notes", "received"],
+    "required": ["_id", "name", "amount", "price", "manufacturer", "received"],
     "additionalProperties": False,
 }
 
