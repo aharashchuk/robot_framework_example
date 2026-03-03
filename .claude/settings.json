@@ -7,8 +7,12 @@
       "Bash(cat *)",
       "Bash(grep *)",
       "Bash(curl *)",
+      "Bash(mkdir *)",
       "Bash(docker compose *)",
       "Bash(rm tests/*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
       "Bash(source sales-portal-robot-tests/.venv/bin/activate && mypy *)",
       "Bash(source sales-portal-robot-tests/.venv/bin/activate && ruff *)",
       "Bash(source sales-portal-robot-tests/.venv/bin/activate && python *)",
@@ -20,7 +24,8 @@
       "Bash(.venv/bin/robot *)",
       "Bash(.venv/bin/python3 *)",
       "Bash(TEST_ENV=* .venv/bin/robot *)",
-      "Bash(TEST_ENV=* PYTHONPATH=. .venv/bin/robot *)"
+      "Bash(TEST_ENV=* PYTHONPATH=. .venv/bin/robot *)",
+      "Bash(cd sales-portal-robot-tests && TEST_ENV=* python -m robot *)"
     ]
   }
 }

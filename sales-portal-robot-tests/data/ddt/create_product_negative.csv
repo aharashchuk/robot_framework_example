@@ -1,4 +1,4 @@
-case_name,name,amount,price,manufacturer,expected_status,expected_error
+${case_name},${name},${amount},${price},${manufacturer},${expected_status},${expected_error}
 Empty name,${EMPTY},10,999,Samsung,400,Incorrect request body
 Name too short,AB,10,999,Sony,400,Incorrect request body
 Name too long,This product name is way too long for the backend to accept it yes,10,999,Google,400,Incorrect request body

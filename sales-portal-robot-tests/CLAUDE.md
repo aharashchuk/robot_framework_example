@@ -16,18 +16,22 @@ Start locally: `cd sales-portal && docker-compose up --build`
 Credentials: `admin@example.com` / `admin123`
 
 ## Running Tests
+
+**Always use `python -m robot`** (not `robot`) — the `-m` flag adds CWD to `sys.path`, which is required for library imports like `libraries/api/api_client.py`.
+
 ```bash
 # All API tests
-robot tests/api/
+cd sales-portal-robot-tests
+TEST_ENV=dev python -m robot tests/api/
 
 # Single suite
-robot tests/api/products/
+TEST_ENV=dev python -m robot tests/api/products/
 
 # By tag
-robot --include smoke tests/
+TEST_ENV=dev python -m robot --include smoke tests/
 
 # Dry run (syntax check)
-robot --dryrun tests/
+TEST_ENV=dev python -m robot --dryrun tests/
 ```
 
 ## Architecture (Layer Order: Bottom → Top)
