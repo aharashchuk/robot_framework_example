@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from data.models.customer import Customer
 
@@ -48,7 +48,7 @@ class DeliveryData(BaseModel):
 
     address: DeliveryAddress
     condition: str
-    final_date: str  # sent as finalDate
+    final_date: str = Field(serialization_alias="finalDate")
 
     model_config = {"populate_by_name": True}
 

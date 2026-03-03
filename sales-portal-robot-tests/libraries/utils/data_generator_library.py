@@ -54,7 +54,7 @@ class DataGeneratorLibrary:
             kwargs["notes"] = notes
 
         data = generate_product_data(**kwargs)  # type: ignore[arg-type]
-        return data.model_dump()
+        return data.model_dump(exclude_none=True)
 
     # ------------------------------------------------------------------
     # Customers
@@ -101,7 +101,7 @@ class DataGeneratorLibrary:
             kwargs["notes"] = notes
 
         data = generate_customer_data(**kwargs)  # type: ignore[arg-type]
-        return data.model_dump()
+        return data.model_dump(exclude_none=True)
 
     # ------------------------------------------------------------------
     # Delivery
@@ -145,7 +145,7 @@ class DataGeneratorLibrary:
             kwargs["final_date"] = final_date
 
         data = generate_delivery_data(**kwargs)  # type: ignore[arg-type]
-        return data.model_dump()
+        return data.model_dump(by_alias=True, exclude_none=True)
 
     # ------------------------------------------------------------------
     # Orders
@@ -181,4 +181,4 @@ class DataGeneratorLibrary:
             product_ids=product_ids,
             **kwargs,  # type: ignore[arg-type]
         )
-        return data.model_dump()
+        return data.model_dump(exclude_none=True)

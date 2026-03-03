@@ -6,13 +6,21 @@
       "Bash(find *)",
       "Bash(cat *)",
       "Bash(grep *)",
+      "Bash(curl *)",
       "Bash(docker compose *)",
+      "Bash(rm tests/*)",
       "Bash(source sales-portal-robot-tests/.venv/bin/activate && mypy *)",
       "Bash(source sales-portal-robot-tests/.venv/bin/activate && ruff *)",
       "Bash(source sales-portal-robot-tests/.venv/bin/activate && python *)",
       "Bash(source sales-portal-robot-tests/.venv/bin/activate && robocop *)",
       "Bash(source sales-portal-robot-tests/.venv/bin/activate && robotidy *)",
-      "Bash(source sales-portal-robot-tests/.venv/bin/activate && robot *)"
+      "Bash(source sales-portal-robot-tests/.venv/bin/activate && robot *)",
+      "Bash(.venv/bin/robocop *)",
+      "Bash(.venv/bin/robotidy *)",
+      "Bash(.venv/bin/robot *)",
+      "Bash(.venv/bin/python3 *)",
+      "Bash(TEST_ENV=* .venv/bin/robot *)",
+      "Bash(TEST_ENV=* PYTHONPATH=. .venv/bin/robot *)"
     ]
   }
 }
