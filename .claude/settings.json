@@ -35,7 +35,13 @@
       "Bash(uvx --from robotframework-robocop robocop check resources/ui/service/)",
       "Bash(TEST_ENV=dev python3 -m robot --dryrun --outputdir /tmp/phase13_dryrun resources/ui/service/)",
       "Bash(TEST_ENV=dev .venv/bin/python -m robot --dryrun --outputdir /tmp/phase13_dryrun resources/ui/service/)",
-      "Bash(.venv/bin/python -c \":*)"
+      "Bash(.venv/bin/python -c \":*)",
+      "Bash(python3 -m pip show robotframework-browser)",
+      "Bash(source /home/aharashchuk/js_edu/robot_framework_example/sales-portal-robot-tests/.venv/bin/activate)",
+      "Bash(python3 -m mypy libraries/mock/mock_library.py data/generators/mock_data_builders.py)",
+      "Bash(python3 -m mypy libraries/ data/ variables/)",
+      "Bash(python3 -m ruff check libraries/mock/ data/generators/mock_data_builders.py)",
+      "Bash(python3 -c \":*)"
     ]
   }
 }
