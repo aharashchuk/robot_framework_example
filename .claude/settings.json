@@ -41,7 +41,16 @@
       "Bash(python3 -m mypy libraries/mock/mock_library.py data/generators/mock_data_builders.py)",
       "Bash(python3 -m mypy libraries/ data/ variables/)",
       "Bash(python3 -m ruff check libraries/mock/ data/generators/mock_data_builders.py)",
-      "Bash(python3 -c \":*)"
+      "Bash(python3 -c \":*)",
+      "Bash(python3 -m pip list)",
+      "Bash(/home/aharashchuk/js_edu/robot_framework_example/sales-portal-robot-tests/.venv/bin/python3 -c \"from Browser import Browser; print\\(Browser.ROBOT_LIBRARY_VERSION\\)\")",
+      "Bash(/home/aharashchuk/js_edu/robot_framework_example/sales-portal-robot-tests/.venv/bin/python3 -c \"from Browser.keywords.context import Context; import inspect; sig = inspect.signature\\(Context.new_context\\); print\\(sig\\)\")",
+      "Bash(/home/aharashchuk/js_edu/robot_framework_example/sales-portal-robot-tests/.venv/bin/python3 -c \"from Browser import Browser; b = Browser.__new__\\(Browser\\); print\\([m for m in dir\\(b\\) if ''storage'' in m.lower\\(\\) or ''context'' in m.lower\\(\\)]\\)\")",
+      "Bash(TEST_ENV=dev .venv/bin/python -m robot --outputdir results/phase15 --include setup tests/ui/auth_setup.robot)",
+      "Bash(uvx --from robotframework-robocop robocop check tests/ui/auth_setup.robot resources/ui/ui_suite_setup.resource)"
+    ],
+    "additionalDirectories": [
+      "/home/aharashchuk/js_edu/robot_framework_example/sales-portal-robot-tests/src/.auth"
     ]
   }
 }
