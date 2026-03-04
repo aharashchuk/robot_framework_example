@@ -31,7 +31,11 @@
       "Bash(uvx robocop check /home/aharashchuk/js_edu/robot_framework_example/sales-portal-robot-tests/resources/ui/pages/products/ /home/aharashchuk/js_edu/robot_framework_example/sales-portal-robot-tests/resources/ui/pages/customers/ /home/aharashchuk/js_edu/robot_framework_example/sales-portal-robot-tests/resources/ui/pages/orders/)",
       "Bash(uvx robotframework-robocop check /home/aharashchuk/js_edu/robot_framework_example/sales-portal-robot-tests/resources/ui/pages/products/ /home/aharashchuk/js_edu/robot_framework_example/sales-portal-robot-tests/resources/ui/pages/customers/ /home/aharashchuk/js_edu/robot_framework_example/sales-portal-robot-tests/resources/ui/pages/orders/)",
       "Bash(uvx --from robotframework-robocop robocop check resources/ui/pages/products/ resources/ui/pages/customers/ resources/ui/pages/orders/)",
-      "Bash(uvx --from robotframework-robocop robocop check resources/ui/pages/sales_portal_page.resource resources/ui/pages/login_page.resource)"
+      "Bash(uvx --from robotframework-robocop robocop check resources/ui/pages/sales_portal_page.resource resources/ui/pages/login_page.resource)",
+      "Bash(uvx --from robotframework-robocop robocop check resources/ui/service/)",
+      "Bash(TEST_ENV=dev python3 -m robot --dryrun --outputdir /tmp/phase13_dryrun resources/ui/service/)",
+      "Bash(TEST_ENV=dev .venv/bin/python -m robot --dryrun --outputdir /tmp/phase13_dryrun resources/ui/service/)",
+      "Bash(.venv/bin/python -c \":*)"
     ]
   }
 }
