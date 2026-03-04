@@ -21,7 +21,17 @@
       "Bash(source .venv/bin/activate && *)",
       "Bash(source sales-portal-robot-tests/.venv/bin/activate && *)",
       "Bash(TEST_ENV=* python -m robot *)",
-      "Bash(TEST_ENV=* PYTHONPATH=. .venv/bin/robot *)"
+      "Bash(TEST_ENV=* PYTHONPATH=. .venv/bin/robot *)",
+      "Bash(python -m robocop check resources/ui/pages/products/ resources/ui/pages/customers/ resources/ui/pages/orders/)",
+      "Bash(python3 -m robocop check resources/ui/pages/products/ resources/ui/pages/customers/ resources/ui/pages/orders/)",
+      "Bash(pip3 show robocop)",
+      "Bash(pip install robocop)",
+      "Bash(pip3 install robocop)",
+      "Read(//usr/local/bin/**)",
+      "Bash(uvx robocop check /home/aharashchuk/js_edu/robot_framework_example/sales-portal-robot-tests/resources/ui/pages/products/ /home/aharashchuk/js_edu/robot_framework_example/sales-portal-robot-tests/resources/ui/pages/customers/ /home/aharashchuk/js_edu/robot_framework_example/sales-portal-robot-tests/resources/ui/pages/orders/)",
+      "Bash(uvx robotframework-robocop check /home/aharashchuk/js_edu/robot_framework_example/sales-portal-robot-tests/resources/ui/pages/products/ /home/aharashchuk/js_edu/robot_framework_example/sales-portal-robot-tests/resources/ui/pages/customers/ /home/aharashchuk/js_edu/robot_framework_example/sales-portal-robot-tests/resources/ui/pages/orders/)",
+      "Bash(uvx --from robotframework-robocop robocop check resources/ui/pages/products/ resources/ui/pages/customers/ resources/ui/pages/orders/)",
+      "Bash(uvx --from robotframework-robocop robocop check resources/ui/pages/sales_portal_page.resource resources/ui/pages/login_page.resource)"
     ]
   }
 }
