@@ -1,0 +1,99 @@
+name: Robot Framework Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: sales-portal-robot-tests
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: pip install -e .
+
+      - name: Initialize Browser Library
+        run: rfbrowser init chromium
+
+      - name: Start Sales Portal
+        run: |
+          cd sales-portal
+          docker compose up --build -d
+          echo "Waiting for backend..."
+          timeout 90 bash -c \
+            'until curl -sf http://localhost:8686/api/docs > /dev/null 2>&1; do sleep 2; done'
+          echo "Waiting for frontend..."
+          timeout 30 bash -c \
+            'until curl -sf http://localhost:8585 > /dev/null 2>&1; do sleep 2; done'
+
+      - name: Generate Auth State
+        run: >
+          TEST_ENV=dev python -m robot
+          --include setup
+          --outputdir results/auth
+          tests/ui/auth_setup.robot
+
+      - name: Run API Tests
+        continue-on-error: true
+        run: >
+          TEST_ENV=dev python -m robot
+          --include api
+          --include regression
+          --outputdir results/api
+          tests/api/
+
+      - name: Run UI Tests
+        continue-on-error: true
+        run: >
+          TEST_ENV=dev python -m robot
+          --include ui
+          --include regression
+          --exclude setup
+          --outputdir results/ui
+          tests/ui/
+
+      - name: Merge results
+        if: always()
+        run: |
+          outputs=""
+          [ -f results/api/output.xml ] && outputs="$outputs results/api/output.xml"
+          [ -f results/ui/output.xml ]  && outputs="$outputs results/ui/output.xml"
+          if [ -n "$outputs" ]; then
+            python -m robot.rebot \
+              --outputdir results \
+              --output output.xml \
+              $outputs
+          fi
+
+      - name: Upload RF report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: robot-report
+          path: sales-portal-robot-tests/results/
+
+      - name: Send Telegram Notification
+        if: always()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          STATUS="${{ job.status }}"
+          [ "$STATUS" = "success" ] && STATUS="passed" || STATUS="failed"
+          python scripts/notify_telegram.py \
+            "$STATUS" \
+            "" \
+            "results/output.xml"

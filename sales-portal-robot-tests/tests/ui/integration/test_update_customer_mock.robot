@@ -18,7 +18,10 @@ Resource            resources/ui/pages/sales_portal_page.resource
 Suite Setup         Setup Integration Suite
 Suite Teardown      Teardown Integration Browser
 Test Setup          Setup Integration Test Context
-Test Teardown       Run Keywords    Full Delete Entities    ${ADMIN_TOKEN}    AND    Teardown Integration Test Context
+Test Teardown       Run Keywords
+...                 Take Screenshot On Failure    AND
+...                 Full Delete Entities    ${ADMIN_TOKEN}    AND
+...                 Teardown Integration Test Context
 Test Tags           integration    ui    orders    regression
 
 

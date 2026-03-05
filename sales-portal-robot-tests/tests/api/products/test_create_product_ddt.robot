@@ -22,7 +22,7 @@ ${ADMIN_TOKEN}    ${EMPTY}
 
 
 *** Test Cases ***
-Create Product — Negative: ${case_name}
+Create Product — Negative: ${case_name}    # robocop: off=LEN05
     [Tags]    regression    api    products    ddt
 
 

@@ -15,7 +15,7 @@ Resource            resources/ui/pages/sales_portal_page.resource
 Suite Setup         Setup Integration Browser
 Suite Teardown      Teardown Integration Browser
 Test Setup          Setup Integration Test Context
-Test Teardown       Teardown Integration Test Context
+Test Teardown       Run Keywords    Take Screenshot On Failure    AND    Teardown Integration Test Context
 Test Tags           integration    ui    orders    regression
 
 

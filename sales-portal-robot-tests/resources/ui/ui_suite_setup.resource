@@ -37,3 +37,8 @@ Teardown Integration Test Context
 Teardown Integration Browser
     [Documentation]    Closes the browser after all integration tests.
     Close Browser
+
+Take Screenshot On Failure
+    [Documentation]    Captures a screenshot when the current test has failed.
+    Run Keyword If Test Failed
+    ...    Take Screenshot    filename=${TEST NAME}-failure.png

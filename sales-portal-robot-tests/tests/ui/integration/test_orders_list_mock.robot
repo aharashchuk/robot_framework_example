@@ -14,6 +14,7 @@ Resource            resources/ui/pages/sales_portal_page.resource
 Suite Setup         Setup UI Browser Context
 Suite Teardown      Teardown UI Browser Context
 Test Setup          Reset Page And Clear Mocks
+Test Teardown       Take Screenshot On Failure
 Test Tags           integration    ui    orders    regression
 
 

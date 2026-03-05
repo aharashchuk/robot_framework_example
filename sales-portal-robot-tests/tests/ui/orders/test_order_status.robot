@@ -14,7 +14,7 @@ Resource            resources/ui/service/order_details_ui_service.resource
 
 Suite Setup         Setup UI Suite
 Suite Teardown      Teardown UI Browser Context
-Test Teardown       Full Delete Entities    ${ADMIN_TOKEN}
+Test Teardown       Run Keywords    Take Screenshot On Failure    AND    Full Delete Entities    ${ADMIN_TOKEN}
 Test Tags           ui    orders
 
 

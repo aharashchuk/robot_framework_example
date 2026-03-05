@@ -19,7 +19,7 @@ ${ADMIN_TOKEN}    ${EMPTY}
 
 
 *** Test Cases ***
-Create Customer — Negative: ${case_name}
+Create Customer — Negative: ${case_name}    # robocop: off=LEN05
     [Tags]    regression    api    customers    ddt
 
 

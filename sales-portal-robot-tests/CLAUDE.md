@@ -126,4 +126,6 @@ Pre-commit hooks run these automatically on staged files.
 | 11–13 | UI base page, domain pages, UI services | ⏳ Pending |
 | 14 | Mock / network interception library | ⏳ Pending |
 | 15–17 | Auth setup, UI tests, integration tests | ⏳ Pending |
-| 18–20 | Reporting, CI/CD, polish | ⏳ Pending |
+| 18 | Reporting, screenshots on failure, Telegram notify, Makefile | ✅ Done |
+| 19 | CI/CD — .github/workflows/build.yml + tests.yml | ✅ Done |
+| 20 | Final polish & documentation | ⏳ Pending |

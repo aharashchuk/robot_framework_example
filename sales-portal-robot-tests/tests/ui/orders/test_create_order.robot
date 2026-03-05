@@ -18,7 +18,7 @@ Resource            resources/ui/pages/sales_portal_page.resource
 
 Suite Setup         Setup UI Suite
 Suite Teardown      Teardown UI Browser Context
-Test Teardown       Full Delete Entities    ${ADMIN_TOKEN}
+Test Teardown       Run Keywords    Take Screenshot On Failure    AND    Full Delete Entities    ${ADMIN_TOKEN}
 Test Tags           regression    ui    orders
 
 

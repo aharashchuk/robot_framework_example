@@ -13,7 +13,7 @@ Resource            resources/ui/pages/orders/order_details_page.resource
 
 Suite Setup         Setup UI Suite
 Suite Teardown      Teardown UI Browser Context
-Test Teardown       Full Delete Entities    ${ADMIN_TOKEN}
+Test Teardown       Run Keywords    Take Screenshot On Failure    AND    Full Delete Entities    ${ADMIN_TOKEN}
 Test Tags           ui    orders
 
 
