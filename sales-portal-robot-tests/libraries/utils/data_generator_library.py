@@ -182,3 +182,46 @@ class DataGeneratorLibrary:
             **kwargs,  # type: ignore[arg-type]
         )
         return data.model_dump(exclude_none=True)
+
+    # ------------------------------------------------------------------
+    # Mock data builders (for integration / network-interception tests)
+    # ------------------------------------------------------------------
+
+    @keyword("Build Mock Customer")
+    def build_mock_customer(
+        self,
+        name: str = "Mock Customer",
+        email: str = "mock.customer@example.com",
+        country: str = "USA",
+    ) -> dict[str, object]:
+        """Return a minimal customer dict that mirrors the backend response shape."""
+        from data.generators.mock_data_builders import build_mock_customer
+
+        return build_mock_customer(name=name, email=email, country=country)
+
+    @keyword("Build Mock Product")
+    def build_mock_product(
+        self,
+        name: str = "Mock Product",
+        price: int = 100,
+        amount: int = 10,
+        manufacturer: str = "Samsung",
+    ) -> dict[str, object]:
+        """Return a minimal product dict that mirrors the backend response shape."""
+        from data.generators.mock_data_builders import build_mock_product
+
+        return build_mock_product(name=name, price=int(price), amount=int(amount), manufacturer=manufacturer)
+
+    @keyword("Build Mock Order")
+    def build_mock_order(self) -> dict[str, object]:
+        """Return a minimal order dict that mirrors the backend response shape."""
+        from data.generators.mock_data_builders import build_mock_order
+
+        return build_mock_order()
+
+    @keyword("Build Mock Orders List")
+    def build_mock_orders_list(self, count: int = 5) -> list[dict[str, object]]:
+        """Return a list of *count* mock order dicts."""
+        from data.generators.mock_data_builders import build_mock_order
+
+        return [build_mock_order() for _ in range(int(count))]

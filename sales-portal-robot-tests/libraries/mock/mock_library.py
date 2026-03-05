@@ -46,17 +46,37 @@ class MockLibrary:
             contentType="application/json",
         )
 
+    def _route_regex(self, regex_str: str, body: str, status: int = 200) -> None:
+        self._ensure_extension()
+        self._browser().call_js_keyword(
+            "routeMockResponseRegex",
+            regexStr=regex_str,
+            body=body,
+            status=status,
+            contentType="application/json",
+        )
+
     # ------------------------------------------------------------------
     # Public mock keywords
     # ------------------------------------------------------------------
 
     @keyword("Mock Get All Orders")
     def mock_get_all_orders(self, orders: list[dict[str, object]]) -> None:
-        """Intercepts ``GET /api/orders`` and returns a mocked orders list."""
-        self._route(
-            url="**/api/orders",
-            body=json.dumps({"IsSuccess": True, "ErrorMessage": None, "Orders": orders}),
+        """Intercepts ``GET /api/orders?…`` (with query params) and returns a mocked orders list."""
+        body = json.dumps(
+            {
+                "IsSuccess": True,
+                "ErrorMessage": None,
+                "Orders": orders,
+                "total": len(orders),
+                "page": 1,
+                "limit": 10,
+                "search": "",
+                "status": [],
+                "sorting": {"sortField": "createdOn", "sortOrder": "desc"},
+            }
         )
+        self._route_regex(r"\/api\/orders\?", body)
 
     @keyword("Mock Get All Products")
     def mock_get_all_products(self, products: list[dict[str, object]]) -> None:
@@ -64,6 +84,14 @@ class MockLibrary:
         self._route(
             url="**/api/products/all",
             body=json.dumps({"IsSuccess": True, "ErrorMessage": None, "Products": products}),
+        )
+
+    @keyword("Mock Get All Customers")
+    def mock_get_all_customers(self, customers: list[dict[str, object]]) -> None:
+        """Intercepts ``GET /api/customers/all`` and returns a mocked customers list."""
+        self._route(
+            url="**/api/customers/all",
+            body=json.dumps({"IsSuccess": True, "ErrorMessage": None, "Customers": customers}),
         )
 
     @keyword("Mock Get Metrics")
@@ -78,6 +106,26 @@ class MockLibrary:
     def mock_response(self, url: str, body: dict[str, object], status: int = 200) -> None:
         """Generic keyword — intercepts *url* (glob pattern) and responds with *body* dict."""
         self._route(url=url, body=json.dumps(body), status=status)
+
+    @keyword("Mock Response With Status")
+    def mock_response_with_status(self, url: str, body: dict[str, object], status: int) -> None:
+        """Intercepts *url* (glob pattern) and responds with *body* dict and given *status* code."""
+        self._route(url=url, body=json.dumps(body), status=status)
+
+    @keyword("Mock Create Order Response")
+    def mock_create_order_response(self, body: dict[str, object], status: int = 201) -> None:
+        """Intercepts ``POST /api/orders`` and returns the given *body* with *status* code."""
+        self._route(url="**/api/orders", body=json.dumps(body), status=status)
+
+    @keyword("Mock Order By Id Response")
+    def mock_order_by_id_response(
+        self, body: dict[str, object], order_id: str, status: int = 200
+    ) -> None:
+        """Intercepts ``GET/PUT /api/orders/:id/`` and returns the given *body* with *status* code.
+
+        The frontend sends requests with a trailing slash (``/api/orders/:id/``).
+        """
+        self._route(url=f"**/api/orders/{order_id}/", body=json.dumps(body), status=status)
 
     @keyword("Clear All Mocks")
     def clear_all_mocks(self) -> None:

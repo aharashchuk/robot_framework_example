@@ -51,3 +51,23 @@ def build_mock_order(**overrides: object) -> dict[str, object]:
         "assignedManager": None,
         **overrides,
     }
+
+
+def build_mock_orders_response(
+    count: int = 5,
+    sort_field: str = "createdOn",
+    sort_order: str = "desc",
+) -> dict[str, object]:
+    """Return an orders list response envelope with *count* generated mock orders."""
+    orders = [build_mock_order() for _ in range(count)]
+    return {
+        "IsSuccess": True,
+        "ErrorMessage": None,
+        "Orders": orders,
+        "total": count,
+        "page": 1,
+        "limit": 10,
+        "search": "",
+        "status": [],
+        "sorting": {"sortField": sort_field, "sortOrder": sort_order},
+    }
