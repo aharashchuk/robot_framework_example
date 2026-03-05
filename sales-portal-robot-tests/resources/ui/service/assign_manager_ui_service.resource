@@ -43,7 +43,9 @@ Assign First Available Manager Via UI
     Open Order Details Page    ${order_id}
     Wait For Order Details Page
     Open Assign Manager Modal Via UI
-    ${first_manager}=    Get Text    css=#manager-list li:first-child
+    ${first_manager}=    Evaluate JavaScript
+    ...    css=\#manager-list li:first-child
+    ...    (element) => element.childNodes[0].textContent.trim()
     Click    css=#manager-list li:first-child
     Wait For Elements State    ${UPDATE_MANAGER_BTN}    enabled    timeout=${DEFAULT_TIMEOUT}
     Click    ${UPDATE_MANAGER_BTN}

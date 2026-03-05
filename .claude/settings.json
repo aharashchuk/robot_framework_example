@@ -47,7 +47,19 @@
       "Bash(/home/aharashchuk/js_edu/robot_framework_example/sales-portal-robot-tests/.venv/bin/python3 -c \"from Browser.keywords.context import Context; import inspect; sig = inspect.signature\\(Context.new_context\\); print\\(sig\\)\")",
       "Bash(/home/aharashchuk/js_edu/robot_framework_example/sales-portal-robot-tests/.venv/bin/python3 -c \"from Browser import Browser; b = Browser.__new__\\(Browser\\); print\\([m for m in dir\\(b\\) if ''storage'' in m.lower\\(\\) or ''context'' in m.lower\\(\\)]\\)\")",
       "Bash(TEST_ENV=dev .venv/bin/python -m robot --outputdir results/phase15 --include setup tests/ui/auth_setup.robot)",
-      "Bash(uvx --from robotframework-robocop robocop check tests/ui/auth_setup.robot resources/ui/ui_suite_setup.resource)"
+      "Bash(uvx --from robotframework-robocop robocop check tests/ui/auth_setup.robot resources/ui/ui_suite_setup.resource)",
+      "Read(//home/aharashchuk/js_edu/pytest_example/tests/ui/orders/**)",
+      "Bash(TEST_ENV=dev python3 -m robot --include setup --outputdir results/phase16_setup tests/ui/auth_setup.robot)",
+      "Bash(TEST_ENV=dev python3 -m robot --outputdir results/phase16_smoke_fix --include smoke --suite \"tests.ui.orders.test_create_order\" --suite \"tests.ui.orders.test_order_navigation\" tests/ui/orders/)",
+      "Read(//usr/local/**)",
+      "Bash(TEST_ENV=dev .venv/bin/python -m robot --outputdir results/phase16_smoke_fix --include smoke tests/ui/orders/test_create_order.robot tests/ui/orders/test_order_navigation.robot)",
+      "Bash(uvx --from robotframework-robocop robocop --version)",
+      "Bash(uvx --from robotframework-robocop robocop --help)",
+      "Bash(uvx --from robotframework-robocop robocop check --help)",
+      "Bash(uvx --from robotframework-robocop robocop check --show-version)",
+      "Bash(uvx --from robotframework-robocop robocop check --config /tmp/test_robocop.toml tests/ui/orders/test_order_details.robot)",
+      "Bash(uvx --from robotframework-robocop robocop check tests/ui/orders/test_order_details.robot -i VAR05)",
+      "Bash(TEST_ENV=dev .venv/bin/python -m robot --outputdir results/phase16_final tests/ui/orders/)"
     ],
     "additionalDirectories": [
       "/home/aharashchuk/js_edu/robot_framework_example/sales-portal-robot-tests/src/.auth"

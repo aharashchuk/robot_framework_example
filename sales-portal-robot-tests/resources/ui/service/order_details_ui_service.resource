@@ -23,11 +23,17 @@ Fill Delivery Form
     [Documentation]    Selects the delivery condition, date, and address fields on the delivery page.
     [Arguments]    ${delivery_data}
     Select Options By    css=#inputType    text    ${delivery_data}[condition]
-    Fill Text    css=#date-input    ${delivery_data}[finalDate]
+    Evaluate JavaScript
+    ...    ${None}
+    ...    (date) => {
+    ...    setUpDateToDatePicker(date);
+    ...    document.getElementById('schedule-delivery').dispatchEvent(new Event('change', {bubbles: true}));
+    ...    }
+    ...    arg=${delivery_data}[finalDate]
     VAR    ${address}    ${delivery_data}[address]
     IF    "${delivery_data}[condition]" == "Delivery"
         Select Options By    css=#inputLocation    text    Other
-        Wait For Elements State    css=#inputCity    enabled    timeout=${DEFAULT_TIMEOUT}
+        Wait For Elements State    css=#inputCity    editable    timeout=${DEFAULT_TIMEOUT}
         Fill Text    css=#inputCity    ${address}[city]
         Fill Text    css=#inputStreet    ${address}[street]
         Fill Text    css=#inputHouse    ${address}[house]

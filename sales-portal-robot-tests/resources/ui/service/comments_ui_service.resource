@@ -18,16 +18,21 @@ Add Comment Via UI
 
 Delete First Comment Via UI
     [Documentation]    Navigates to the Comments tab and deletes the first comment card.
+    ...    Comment cards start at :nth-child(3) — after h4 and the textarea div.
     [Arguments]    ${order_id}
     Open Order Details Page    ${order_id}
     Wait For Order Details Page
     Click    ${COMMENTS_TAB}
-    Wait For Elements State    ${COMMENT_CARDS}    visible    timeout=${DEFAULT_TIMEOUT}
-    Click    css=#comments-tab-container div.shadow-sm.rounded.mx-3:first-of-type button[name="delete-comment"]
+    Wait For Elements State
+    ...    css=#comments-tab-container > div.shadow-sm:nth-child(3)
+    ...    visible
+    ...    timeout=${DEFAULT_TIMEOUT}
+    Click    css=#comments-tab-container > div.shadow-sm:nth-child(3) button[name="delete-comment"]
     Wait For Spinner To Disappear
 
 Delete All Comments Via UI
     [Documentation]    Navigates to the Comments tab and deletes all comment cards one by one.
+    ...    Comment cards start at :nth-child(3) — after h4 and the textarea div.
     [Arguments]    ${order_id}
     Open Order Details Page    ${order_id}
     Wait For Order Details Page
@@ -35,7 +40,7 @@ Delete All Comments Via UI
     WHILE    True    limit=50
         ${count}=    Get Element Count    ${COMMENT_CARDS}
         IF    ${count} == 0    BREAK
-        Click    css=#comments-tab-container div.shadow-sm.rounded.mx-3:first-of-type button[name="delete-comment"]
+        Click    css=#comments-tab-container > div.shadow-sm:nth-child(3) button[name="delete-comment"]
         Wait For Spinner To Disappear
     END
 

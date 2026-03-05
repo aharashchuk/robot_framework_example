@@ -9,6 +9,7 @@ ${ORDER_STATUS_BAR}             css=\#order-status-bar-container
 ${ORDER_DETAILS_HEADER}         css=\#order-details-header
 ${CANCEL_ORDER_BTN}             css=\#cancel-order
 ${PROCESS_ORDER_BTN}            css=\#process-order
+${REOPEN_ORDER_BTN}             css=\#reopen-order
 ${REFRESH_ORDER_BTN}            css=\#refresh-order
 ${EDIT_CUSTOMER_PENCIL}         css=\#edit-customer-pencil
 ${EDIT_PRODUCTS_PENCIL}         css=\#edit-products-pencil
@@ -61,6 +62,10 @@ Click Cancel Order
 Click Process Order
     [Documentation]    Clicks the Process Order button (opens confirmation modal).
     Click    ${PROCESS_ORDER_BTN}
+
+Click Reopen Order
+    [Documentation]    Clicks the Reopen Order button (opens confirmation modal).
+    Click    ${REOPEN_ORDER_BTN}
 
 Click Edit Products Pencil
     [Documentation]    Clicks the edit pencil on the products section to open the edit products modal.

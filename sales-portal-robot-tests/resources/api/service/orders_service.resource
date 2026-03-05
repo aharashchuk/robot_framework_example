@@ -45,6 +45,26 @@ Create Order With Delivery And Track
     Validation.Validate Response    ${delivery_resp}    200
     RETURN    ${delivery_resp}
 
+Create Order In Process And Track
+    [Documentation]    Creates an order with delivery and moves it to In Process. Tracks all IDs.
+    [Arguments]    ${token}    ${num_products}=${1}
+    ${delivery_resp}=    Create Order With Delivery And Track    ${token}    ${num_products}
+    VAR    ${order_id}=    ${delivery_resp.body["Order"]["_id"]}
+    ${status_body}=    Create Dictionary    status=In Process
+    ${status_resp}=    OrdersApi.Update Order Status    ${token}    ${order_id}    ${status_body}
+    Validation.Validate Response    ${status_resp}    200
+    RETURN    ${status_resp}
+
+Create Canceled Order And Track
+    [Documentation]    Creates a draft order and cancels it. Tracks all IDs.
+    [Arguments]    ${token}    ${num_products}=${1}
+    ${order_resp}=    Create Order And Track    ${token}    ${num_products}
+    VAR    ${order_id}=    ${order_resp.body["Order"]["_id"]}
+    ${status_body}=    Create Dictionary    status=Canceled
+    ${status_resp}=    OrdersApi.Update Order Status    ${token}    ${order_id}    ${status_body}
+    Validation.Validate Response    ${status_resp}    200
+    RETURN    ${status_resp}
+
 Delete Order By Id
     [Documentation]    Deletes an order by ID and validates 200.
     [Arguments]    ${token}    ${order_id}
