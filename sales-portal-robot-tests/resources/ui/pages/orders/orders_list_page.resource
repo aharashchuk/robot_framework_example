@@ -5,13 +5,13 @@ Resource            ../sales_portal_page.resource
 
 
 *** Variables ***
-${ORDERS_TABLE}                 css=[data-name="table-orders"]
-${ADD_ORDER_BTN}                 css=[name="add-button"]
-${SEARCH_INPUT}                 css=\#search
-${SEARCH_SUBMIT_BTN}            css=\#search-orders
-${EXPORT_BTN}                   css=\#export
-${EXPORT_MODAL}                 css=\#exportModal
-${EXPORT_DOWNLOAD_BTN}          css=\#export-button
+${ORDERS_TABLE}             css=[data-name="table-orders"]
+${ADD_ORDER_BTN}            css=[name="add-button"]
+${SEARCH_INPUT}             css=\#search
+${SEARCH_SUBMIT_BTN}        css=\#search-orders
+${EXPORT_BTN}               css=\#export
+${EXPORT_MODAL}             css=\#exportModal
+${EXPORT_DOWNLOAD_BTN}      css=\#export-button
 
 
 *** Keywords ***

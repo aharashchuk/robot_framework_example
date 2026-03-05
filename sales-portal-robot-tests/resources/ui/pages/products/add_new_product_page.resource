@@ -5,14 +5,14 @@ Resource            ../sales_portal_page.resource
 
 
 *** Variables ***
-${ADD_PRODUCT_FORM}             css=\#add-new-product-form
-${INPUT_NAME}                   css=\#inputName
-${INPUT_MANUFACTURER}           css=\#inputManufacturer
-${INPUT_PRICE}                  css=\#inputPrice
-${INPUT_AMOUNT}                 css=\#inputAmount
-${TEXTAREA_NOTES}               css=\#textareaNotes
-${SAVE_NEW_PRODUCT_BTN}         css=\#save-new-product
-${CLEAR_INPUTS_BTN}             css=\#clear-inputs
+${ADD_PRODUCT_FORM}         css=\#add-new-product-form
+${INPUT_NAME}               css=\#inputName
+${INPUT_MANUFACTURER}       css=\#inputManufacturer
+${INPUT_PRICE}              css=\#inputPrice
+${INPUT_AMOUNT}             css=\#inputAmount
+${TEXTAREA_NOTES}           css=\#textareaNotes
+${SAVE_NEW_PRODUCT_BTN}     css=\#save-new-product
+${CLEAR_INPUTS_BTN}         css=\#clear-inputs
 
 
 *** Keywords ***

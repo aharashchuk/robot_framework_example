@@ -5,18 +5,18 @@ Resource            ../sales_portal_page.resource
 
 
 *** Variables ***
-${ADD_CUSTOMER_FORM}            css=\#add-new-customer-form
-${INPUT_EMAIL}                  css=\#inputEmail
-${INPUT_NAME}                   css=\#inputName
-${INPUT_COUNTRY}                css=\#inputCountry
-${INPUT_CITY}                   css=\#inputCity
-${INPUT_STREET}                 css=\#inputStreet
-${INPUT_HOUSE}                  css=\#inputHouse
-${INPUT_FLAT}                   css=\#inputFlat
-${INPUT_PHONE}                  css=\#inputPhone
-${TEXTAREA_NOTES}               css=\#textareaNotes
-${SAVE_NEW_CUSTOMER_BTN}        css=\#save-new-customer
-${CLEAR_INPUTS_BTN}             css=\#clear-inputs
+${ADD_CUSTOMER_FORM}        css=\#add-new-customer-form
+${INPUT_EMAIL}              css=\#inputEmail
+${INPUT_NAME}               css=\#inputName
+${INPUT_COUNTRY}            css=\#inputCountry
+${INPUT_CITY}               css=\#inputCity
+${INPUT_STREET}             css=\#inputStreet
+${INPUT_HOUSE}              css=\#inputHouse
+${INPUT_FLAT}               css=\#inputFlat
+${INPUT_PHONE}              css=\#inputPhone
+${TEXTAREA_NOTES}           css=\#textareaNotes
+${SAVE_NEW_CUSTOMER_BTN}    css=\#save-new-customer
+${CLEAR_INPUTS_BTN}         css=\#clear-inputs
 
 
 *** Keywords ***
@@ -44,7 +44,9 @@ Verify Customer Form Error
     [Documentation]    Verifies that an inline validation error is visible for the given field.
     [Arguments]    ${field_error_id}    ${expected_message}=${EMPTY}
     Wait For Elements State    css=#${field_error_id}    visible    timeout=${SHORT_TIMEOUT}
-    IF    "${expected_message}" != "${EMPTY}"    Get Text    css=#${field_error_id}    ==    ${expected_message}
+    IF    "${expected_message}" != "${EMPTY}"
+        Get Text    css=#${field_error_id}    ==    ${expected_message}
+    END
 
 Clear Customer Form
     [Documentation]    Clicks Clear all to reset the form inputs.

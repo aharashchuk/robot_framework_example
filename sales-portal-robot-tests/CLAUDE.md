@@ -128,4 +128,4 @@ Pre-commit hooks run these automatically on staged files.
 | 15–17 | Auth setup, UI tests, integration tests | ⏳ Pending |
 | 18 | Reporting, screenshots on failure, Telegram notify, Makefile | ✅ Done |
 | 19 | CI/CD — .github/workflows/build.yml + tests.yml | ✅ Done |
-| 20 | Final polish & documentation | ⏳ Pending |
+| 20 | Final polish & documentation | ✅ Done |

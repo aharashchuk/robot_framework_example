@@ -1,12 +1,11 @@
 *** Settings ***
 Documentation       Integration tests — Create Order modal with mocked API responses.
-Metadata            Suite        UI
+Metadata            Suite    UI
 Metadata            Sub-Suite    Integration
 
 Library             Browser
-Library             libraries/mock/mock_library.py                AS    Mock
+Library             libraries/mock/mock_library.py    AS    Mock
 Library             libraries/utils/data_generator_library.py    AS    DataGen
-
 Resource            resources/ui/ui_suite_setup.resource
 Resource            resources/ui/pages/orders/orders_list_page.resource
 Resource            resources/ui/pages/orders/create_order_modal.resource
@@ -16,6 +15,7 @@ Suite Setup         Setup Integration Browser
 Suite Teardown      Teardown Integration Browser
 Test Setup          Setup Integration Test Context
 Test Teardown       Run Keywords    Take Screenshot On Failure    AND    Teardown Integration Test Context
+
 Test Tags           integration    ui    orders    regression
 
 

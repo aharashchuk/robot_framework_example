@@ -1,12 +1,11 @@
 *** Settings ***
 Documentation       Integration tests — Edit Customer modal in Order Details with mocked API responses.
-Metadata            Suite        UI
+Metadata            Suite    UI
 Metadata            Sub-Suite    Integration
 
 Library             Browser
-Library             libraries/mock/mock_library.py                AS    Mock
+Library             libraries/mock/mock_library.py    AS    Mock
 Library             libraries/utils/data_generator_library.py    AS    DataGen
-
 Resource            resources/ui/ui_suite_setup.resource
 Resource            resources/api/service/login_service.resource
 Resource            resources/api/service/customers_service.resource
@@ -19,9 +18,10 @@ Suite Setup         Setup Integration Suite
 Suite Teardown      Teardown Integration Browser
 Test Setup          Setup Integration Test Context
 Test Teardown       Run Keywords
-...                 Take Screenshot On Failure    AND
-...                 Full Delete Entities    ${ADMIN_TOKEN}    AND
-...                 Teardown Integration Test Context
+...                     Take Screenshot On Failure    AND
+...                     Full Delete Entities    ${ADMIN_TOKEN}    AND
+...                     Teardown Integration Test Context
+
 Test Tags           integration    ui    orders    regression
 
 
@@ -110,13 +110,13 @@ Edit Customer — Redirects To Login When Order 401 During Save
 Setup Integration Suite
     [Documentation]    Gets admin token and creates the browser instance.
     ${token}=    Get Admin Token
-    VAR    ${ADMIN_TOKEN}    ${token}    scope=SUITE    # robocop: off=VAR05
+    VAR    ${ADMIN_TOKEN}    ${token}    scope=SUITE
     Setup Integration Browser
 
 Create Fresh Order And Open Details
     [Documentation]    Creates a new order via API, opens its details page in the current context.
     ${order_resp}=    Create Order And Track    ${ADMIN_TOKEN}
     VAR    ${order_id}=    ${order_resp.body["Order"]["_id"]}
-    VAR    ${CURRENT_ORDER_ID}    ${order_id}    scope=SUITE    # robocop: off=VAR05
+    VAR    ${CURRENT_ORDER_ID}    ${order_id}    scope=SUITE
     Open Order Details Page    ${order_id}
     Wait For Order Details Page

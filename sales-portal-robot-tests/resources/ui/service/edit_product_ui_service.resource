@@ -15,9 +15,13 @@ Edit Product Via UI
     ${name}=    Evaluate    $updates.get('name')
     IF    $name is not None    Update Product Field    css=#inputName    ${name}
     ${amount}=    Evaluate    $updates.get('amount')
-    IF    $amount is not None    Update Product Field    css=#inputAmount    ${amount}
+    IF    $amount is not None
+        Update Product Field    css=#inputAmount    ${amount}
+    END
     ${price}=    Evaluate    $updates.get('price')
-    IF    $price is not None    Update Product Field    css=#inputPrice    ${price}
+    IF    $price is not None
+        Update Product Field    css=#inputPrice    ${price}
+    END
     Submit Edit Form
     Wait For Toast Message
 

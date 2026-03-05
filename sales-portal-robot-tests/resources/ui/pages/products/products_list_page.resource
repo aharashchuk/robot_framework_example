@@ -5,11 +5,11 @@ Resource            ../sales_portal_page.resource
 
 
 *** Variables ***
-${PRODUCTS_TABLE}               css=[data-name="table-products"]
-${ADD_PRODUCT_BTN}              css=[name="add-button"]
-${SEARCH_INPUT}                 css=\#search
-${SEARCH_SUBMIT_BTN}            css=\#search-products
-${PRODUCTS_TABLE_BODY}          css=\#table-products tbody
+${PRODUCTS_TABLE}           css=[data-name="table-products"]
+${ADD_PRODUCT_BTN}          css=[name="add-button"]
+${SEARCH_INPUT}             css=\#search
+${SEARCH_SUBMIT_BTN}        css=\#search-products
+${PRODUCTS_TABLE_BODY}      css=\#table-products tbody
 
 
 *** Keywords ***

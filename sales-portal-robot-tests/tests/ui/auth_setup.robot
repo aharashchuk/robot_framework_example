@@ -1,10 +1,10 @@
 *** Settings ***
-Documentation    Generates browser storage state with admin session.
-Library          OperatingSystem
-Library          Browser
+Documentation       Generates browser storage state with admin session.
 
-Variables        variables/env.py
-Variables        variables/constants.py
+Library             OperatingSystem
+Library             Browser
+Variables           variables/env.py
+Variables           variables/constants.py
 
 
 *** Test Cases ***

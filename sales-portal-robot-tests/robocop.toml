@@ -1,0 +1,13 @@
+# Robocop 8.x linter configuration
+[lint]
+# DOC01/DOC02: documentation on every test/keyword is optional in this project
+# VAR05: VAR scope=SUITE is the preferred replacement for Set Suite Variable
+# VAR01: empty list VAR @{name} is valid RF7 syntax (conflicts with DEPR06 for empty lists)
+ignore = ["DOC01", "DOC02", "VAR05", "VAR01"]
+
+[lint.per_file_ignores]
+# DataDriver DDT keywords must accept all CSV columns as args — ARG/LEN rules are false positives
+"tests/api/customers/test_create_customer_ddt.robot" = ["LEN07", "ARG07", "ARG01"]
+"tests/api/products/test_create_product_ddt.robot" = ["LEN07", "ARG07", "ARG01"]
+# test_order_receive has 11 setup steps by design (API workflow requires delivery + status change)
+"tests/api/orders/test_order_receive.robot" = ["LEN06"]

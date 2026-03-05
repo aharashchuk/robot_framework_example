@@ -6,11 +6,11 @@ Resource            resources/ui/pages/base_modal.resource
 
 
 *** Variables ***
-${ASSIGN_MANAGER_MODAL}         css=\#assign-manager-modal
-${MANAGER_LIST}                 css=\#manager-list
-${UPDATE_MANAGER_BTN}           css=\#update-manager-btn
-${CANCEL_ASSIGN_MODAL_BTN}      css=\#cancel-edit-manager-modal-btn
-${ASSIGNED_MANAGER_CONTAINER}   css=\#assigned-manager-container
+${ASSIGN_MANAGER_MODAL}             css=\#assign-manager-modal
+${MANAGER_LIST}                     css=\#manager-list
+${UPDATE_MANAGER_BTN}               css=\#update-manager-btn
+${CANCEL_ASSIGN_MODAL_BTN}          css=\#cancel-edit-manager-modal-btn
+${ASSIGNED_MANAGER_CONTAINER}       css=\#assigned-manager-container
 
 
 *** Keywords ***

@@ -29,4 +29,4 @@ jobs:
         run: mypy libraries/ variables/ data/
 
       - name: Lint Robot files — robocop
-        run: python -m robocop check --threshold E resources/ tests/
+        run: python -m robocop check resources/ tests/

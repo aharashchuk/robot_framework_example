@@ -5,10 +5,10 @@ Resource            ../sales_portal_page.resource
 
 
 *** Variables ***
-${CUSTOMERS_TABLE}              css=[data-name="table-customers"]
-${ADD_CUSTOMER_BTN}             css=[name="add-button"]
-${SEARCH_INPUT}                 css=\#search
-${SEARCH_SUBMIT_BTN}            css=\#search-customer
+${CUSTOMERS_TABLE}      css=[data-name="table-customers"]
+${ADD_CUSTOMER_BTN}     css=[name="add-button"]
+${SEARCH_INPUT}         css=\#search
+${SEARCH_SUBMIT_BTN}    css=\#search-customer
 
 
 *** Keywords ***

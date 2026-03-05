@@ -1,12 +1,11 @@
 *** Settings ***
 Documentation       Integration tests — Orders List page with mocked API responses.
-Metadata            Suite        UI
+Metadata            Suite    UI
 Metadata            Sub-Suite    Integration
 
 Library             Browser
-Library             libraries/mock/mock_library.py                AS    Mock
+Library             libraries/mock/mock_library.py    AS    Mock
 Library             libraries/utils/data_generator_library.py    AS    DataGen
-
 Resource            resources/ui/ui_suite_setup.resource
 Resource            resources/ui/pages/orders/orders_list_page.resource
 Resource            resources/ui/pages/sales_portal_page.resource
@@ -15,6 +14,7 @@ Suite Setup         Setup UI Browser Context
 Suite Teardown      Teardown UI Browser Context
 Test Setup          Reset Page And Clear Mocks
 Test Teardown       Take Screenshot On Failure
+
 Test Tags           integration    ui    orders    regression
 
 

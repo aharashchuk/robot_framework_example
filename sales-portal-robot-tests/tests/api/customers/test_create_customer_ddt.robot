@@ -1,39 +1,40 @@
 *** Settings ***
-Documentation    API tests — POST /api/customers — DDT negative cases
-Metadata         Suite        API
-Metadata         Sub-Suite    Customers
+Documentation       API tests — POST /api/customers — DDT negative cases
+Metadata            Suite    API
+Metadata            Sub-Suite    Customers
 
-Library    DataDriver    file=data/ddt/create_customer_negative.csv    dialect=excel
-Library    libraries/api/endpoints/customers_api_library.py    WITH NAME    CustomersApi
+Library             DataDriver    file=data/ddt/create_customer_negative.csv    dialect=excel
+Library             libraries/api/endpoints/customers_api_library.py    AS    CustomersApi
+Resource            resources/api/api_test_setup.resource
+Resource            resources/api/service/orders_service.resource
 
-Resource    resources/api/api_test_setup.resource
-Resource    resources/api/service/orders_service.resource
+Suite Setup         Setup Admin Token
+Test Teardown       Full Delete Entities    ${ADMIN_TOKEN}
+Test Template       Create Customer With Invalid Data Should Fail
 
-Test Template    Create Customer With Invalid Data Should Fail
-Suite Setup      Setup Admin Token
-Test Teardown    Full Delete Entities    ${ADMIN_TOKEN}
+Test Tags           api    customers    regression
 
 
 *** Variables ***
-${ADMIN_TOKEN}    ${EMPTY}
+${ADMIN_TOKEN}      ${EMPTY}
 
 
 *** Test Cases ***
 Create Customer — Negative: ${case_name}    # robocop: off=LEN05
-    [Tags]    regression    api    customers    ddt
+    [Tags]    ddt
 
 
 *** Keywords ***
 Setup Admin Token
     ${token}=    Get Admin Token
-    Set Suite Variable    ${ADMIN_TOKEN}    ${token}
+    VAR    ${ADMIN_TOKEN}    ${token}    scope=SUITE
 
 Create Customer With Invalid Data Should Fail
     [Arguments]    ${case_name}    ${email}    ${name}    ${country}    ${city}    ${street}
-    ...            ${house}    ${flat}    ${phone}    ${expected_status}    ${expected_error}
+    ...    ${house}    ${flat}    ${phone}    ${expected_status}    ${expected_error}
     ${int_house}=    Convert To Integer    ${house}
-    ${int_flat}=     Convert To Integer    ${flat}
-    ${data}=    Create Dictionary
+    ${int_flat}=    Convert To Integer    ${flat}
+    VAR    &{data}
     ...    email=${email}    name=${name}    country=${country}    city=${city}
     ...    street=${street}    house=${int_house}    flat=${int_flat}    phone=${phone}
     ${response}=    CustomersApi.Create Customer    ${ADMIN_TOKEN}    ${data}

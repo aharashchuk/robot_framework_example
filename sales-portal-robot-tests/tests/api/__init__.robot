@@ -1,2 +1,2 @@
 *** Settings ***
-Documentation    Suite-level setup for all API tests.
+Documentation       Suite-level setup for all API tests.

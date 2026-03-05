@@ -1,11 +1,10 @@
 *** Settings ***
 Documentation       UI tests — Navigation to/from orders pages
-Metadata            Suite        UI
+Metadata            Suite    UI
 Metadata            Sub-Suite    Orders
 
 Library             Browser
 Library             libraries/stores/entity_store_library.py    AS    EntityStore
-
 Resource            resources/ui/ui_suite_setup.resource
 Resource            resources/api/service/login_service.resource
 Resource            resources/api/service/orders_service.resource
@@ -16,11 +15,12 @@ Resource            resources/ui/pages/sales_portal_page.resource
 Suite Setup         Setup UI Suite
 Suite Teardown      Teardown UI Browser Context
 Test Teardown       Run Keywords    Take Screenshot On Failure    AND    Full Delete Entities    ${ADMIN_TOKEN}
+
 Test Tags           ui    orders
 
 
 *** Variables ***
-${ADMIN_TOKEN}    ${EMPTY}
+${ADMIN_TOKEN}      ${EMPTY}
 
 
 *** Test Cases ***
@@ -68,5 +68,5 @@ Navigate To Orders Via Navbar — Navbar Link Active
 Setup UI Suite
     [Documentation]    Gets admin token and sets up browser context with auth state.
     ${token}=    Get Admin Token
-    VAR    ${ADMIN_TOKEN}    ${token}    scope=SUITE    # robocop: off=VAR05
+    VAR    ${ADMIN_TOKEN}    ${token}    scope=SUITE
     Setup UI Browser Context

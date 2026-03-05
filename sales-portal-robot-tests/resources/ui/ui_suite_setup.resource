@@ -1,9 +1,9 @@
 *** Settings ***
-Documentation    UI test suite setup and teardown keywords for browser context management.
-Library    Browser
+Documentation       UI test suite setup and teardown keywords for browser context management.
 
-Variables    variables/env.py
-Variables    variables/constants.py
+Library             Browser
+Variables           variables/env.py
+Variables           variables/constants.py
 
 
 *** Keywords ***

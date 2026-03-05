@@ -50,7 +50,7 @@ Create Order In Process And Track
     [Arguments]    ${token}    ${num_products}=${1}
     ${delivery_resp}=    Create Order With Delivery And Track    ${token}    ${num_products}
     VAR    ${order_id}=    ${delivery_resp.body["Order"]["_id"]}
-    ${status_body}=    Create Dictionary    status=In Process
+    VAR    &{status_body}    status=In Process
     ${status_resp}=    OrdersApi.Update Order Status    ${token}    ${order_id}    ${status_body}
     Validation.Validate Response    ${status_resp}    200
     RETURN    ${status_resp}
@@ -60,7 +60,7 @@ Create Canceled Order And Track
     [Arguments]    ${token}    ${num_products}=${1}
     ${order_resp}=    Create Order And Track    ${token}    ${num_products}
     VAR    ${order_id}=    ${order_resp.body["Order"]["_id"]}
-    ${status_body}=    Create Dictionary    status=Canceled
+    VAR    &{status_body}    status=Canceled
     ${status_resp}=    OrdersApi.Update Order Status    ${token}    ${order_id}    ${status_body}
     Validation.Validate Response    ${status_resp}    200
     RETURN    ${status_resp}

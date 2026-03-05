@@ -5,10 +5,10 @@ Resource            ../base_modal.resource
 
 
 *** Variables ***
-${PRODUCT_DETAILS_MODAL}        css=\#ProductDetailsModal
-${DETAILS_MODAL_BODY}           css=\#details-modal-body-container
-${DETAILS_EDIT_BTN}             css=\#ProductDetailsModal .modal-footer a.btn-primary
-${DETAILS_CLOSE_BTN}            css=\#ProductDetailsModal button.btn-close
+${PRODUCT_DETAILS_MODAL}    css=\#ProductDetailsModal
+${DETAILS_MODAL_BODY}       css=\#details-modal-body-container
+${DETAILS_EDIT_BTN}         css=\#ProductDetailsModal .modal-footer a.btn-primary
+${DETAILS_CLOSE_BTN}        css=\#ProductDetailsModal button.btn-close
 
 
 *** Keywords ***

@@ -5,22 +5,22 @@ Resource            ../sales_portal_page.resource
 
 
 *** Variables ***
-${ORDER_STATUS_BAR}             css=\#order-status-bar-container
-${ORDER_DETAILS_HEADER}         css=\#order-details-header
-${CANCEL_ORDER_BTN}             css=\#cancel-order
-${PROCESS_ORDER_BTN}            css=\#process-order
-${REOPEN_ORDER_BTN}             css=\#reopen-order
-${REFRESH_ORDER_BTN}            css=\#refresh-order
-${EDIT_CUSTOMER_PENCIL}         css=\#edit-customer-pencil
-${EDIT_PRODUCTS_PENCIL}         css=\#edit-products-pencil
-${CUSTOMER_SECTION}             css=\#customer-section
-${PRODUCTS_SECTION}             css=\#products-section
-${DELIVERY_TAB}                 css=\#delivery-tab
-${HISTORY_TAB}                  css=\#history-tab
-${COMMENTS_TAB}                 css=\#comments-tab
-${DELIVERY_BTN}                 css=\#delivery-btn
-${COMMENTS_TEXTAREA}            css=\#textareaComments
-${CREATE_COMMENT_BTN}           css=\#create-comment-btn
+${ORDER_STATUS_BAR}         css=\#order-status-bar-container
+${ORDER_DETAILS_HEADER}     css=\#order-details-header
+${CANCEL_ORDER_BTN}         css=\#cancel-order
+${PROCESS_ORDER_BTN}        css=\#process-order
+${REOPEN_ORDER_BTN}         css=\#reopen-order
+${REFRESH_ORDER_BTN}        css=\#refresh-order
+${EDIT_CUSTOMER_PENCIL}     css=\#edit-customer-pencil
+${EDIT_PRODUCTS_PENCIL}     css=\#edit-products-pencil
+${CUSTOMER_SECTION}         css=\#customer-section
+${PRODUCTS_SECTION}         css=\#products-section
+${DELIVERY_TAB}             css=\#delivery-tab
+${HISTORY_TAB}              css=\#history-tab
+${COMMENTS_TAB}             css=\#comments-tab
+${DELIVERY_BTN}             css=\#delivery-btn
+${COMMENTS_TEXTAREA}        css=\#textareaComments
+${CREATE_COMMENT_BTN}       css=\#create-comment-btn
 
 
 *** Keywords ***
