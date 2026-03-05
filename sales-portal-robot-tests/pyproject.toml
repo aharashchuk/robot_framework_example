@@ -13,9 +13,7 @@ dependencies = [
     "pydantic>=2.10",
     "python-dotenv>=1.1",
     "jsonschema>=4.23",
-    "pymongo>=4.10",
     "python-telegram-bot>=21.0",
-    "robotframework-pabot>=2.18",
 ]
 
 [project.optional-dependencies]
@@ -25,6 +23,9 @@ dev = [
     "pre-commit>=4.0",
     "robotframework-robocop>=5.0",
     "robotframework-tidy>=4.15",
+]
+parallel = [
+    "robotframework-pabot>=2.18",
 ]
 
 [build-system]

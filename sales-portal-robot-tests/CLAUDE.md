@@ -71,12 +71,10 @@ Test Suites (tests/)
 | `api/endpoints/products_api.py` | `ProductsApiLibrary` | GLOBAL | Products CRUD |
 | `api/endpoints/customers_api.py` | `CustomersApiLibrary` | GLOBAL | Customers CRUD |
 | `api/endpoints/orders_api.py` | `OrdersApiLibrary` | GLOBAL | Orders CRUD + delivery/status/receive/comments/managers |
-| `api/endpoints/notifications_api.py` | `NotificationsApiLibrary` | GLOBAL | Notifications |
 | `stores/entity_store_library.py` | `EntityStoreLibrary` | TEST | Tracks created entity IDs for cleanup |
 | `utils/data_generator_library.py` | `DataGeneratorLibrary` | TEST | Faker-based test data generation |
 | `utils/validation_library.py` | `ValidationLibrary` | GLOBAL | Soft-assertion response validation + JSON schema |
-| `ui/browser_helpers.py` | `BrowserHelpersLibrary` | SUITE | UI helpers (Phase 11, stub) |
-| `mock/mock_library.py` | `MockLibrary` | SUITE | Network interception (Phase 14, stub) |
+| `mock/mock_library.py` | `MockLibrary` | SUITE | Network interception via JS extension |
 
 ### Resource Files (`resources/`)
 | Path | Key Keywords |
@@ -119,13 +117,8 @@ Pre-commit hooks run these automatically on staged files.
 ## Implementation Status
 | Phase | Scope | Status |
 |-------|-------|--------|
-| 1–4 | Skeleton, config, data layer, utils | ✅ Done |
-| 5–6 | API client + endpoint libraries | ✅ Done |
-| 7–10 | Service/facade resources, entity store | ✅ Done |
-| 8–9 | API test suites (Login, Products, Customers, Orders) | 🔄 In progress |
-| 11–13 | UI base page, domain pages, UI services | ⏳ Pending |
-| 14 | Mock / network interception library | ⏳ Pending |
-| 15–17 | Auth setup, UI tests, integration tests | ⏳ Pending |
-| 18 | Reporting, screenshots on failure, Telegram notify, Makefile | ✅ Done |
-| 19 | CI/CD — .github/workflows/build.yml + tests.yml | ✅ Done |
-| 20 | Final polish & documentation | ✅ Done |
+| 1–10 | Infrastructure, API libraries, service resources, entity store, API tests | ✅ Done |
+| 11–13 | UI base page, domain pages, UI services | ✅ Done |
+| 14 | Mock / network interception library | ✅ Done |
+| 15–17 | Auth setup, UI tests, integration tests | ✅ Done |
+| 18–20 | Reporting, CI/CD, final polish & documentation | ✅ Done |

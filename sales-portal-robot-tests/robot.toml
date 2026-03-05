@@ -1,9 +1,0 @@
-# robot.toml
-[default]
-variablefiles = [
-    "variables/env.py",
-    "variables/api_config.py",
-    "variables/constants.py",
-]
-outputdir = "results"
-loglevel  = "INFO"
